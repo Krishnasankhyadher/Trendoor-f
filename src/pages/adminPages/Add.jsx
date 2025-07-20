@@ -65,15 +65,15 @@ try {
         <div className='flex gap-2'>
           <label htmlFor="image1">
             <img className='w-20' src={!image1 ? "Screenshot 2025-07-12 155258.png" : URL.createObjectURL(image1)} alt="" />
-            <input onChange={(e)=>setimage1(e.target.files[0])} type="file" id='image1' hidden />
+            <input onChange={(e)=>setimage1(e.target.files[0])} type="file" id='image1'  />
           </label>
           <label htmlFor="image2">
             <img className='w-20' src={!image2 ? "Screenshot 2025-07-12 155258.png" : URL.createObjectURL(image2)} alt="" />
-            <input onChange={(e)=>setimage2(e.target.files[0])} type="file" id='image2' hidden />
+            <input onChange={(e)=>setimage2(e.target.files[0])} type="file" id='image2'  />
           </label>
           <label htmlFor="image3">
             <img  className='w-20' src={!image3 ? "Screenshot 2025-07-12 155258.png" : URL.createObjectURL(image3)} alt="" />
-            <input type="file" id='image3' onChange={(e)=>setimage3(e.target.files[0])}  hidden />
+            <input type="file" id='image3' onChange={(e)=>setimage3(e.target.files[0])}   />
           </label>
           <label htmlFor="image4">
             <img  className='w-20' src={!image4 ? "Screenshot 2025-07-12 155258.png" : URL.createObjectURL(image4)} alt="" />
