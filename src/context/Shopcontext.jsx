@@ -36,9 +36,9 @@ const Shopcontextprovider = (props) => {
           userId: token ? getUserIdFromToken(token) : null,
           cartAmount: getcartamount()
         },
-        { headers: token ? { token : token } : {} }
+        { headers: token ? { token: token } : {} }
       );
-
+      console.log(response)
       if (response.data.success) {
         setPromoCode(response.data.promoCode);
         setDiscount(response.data.discount);
