@@ -68,12 +68,12 @@ const Product = () => {
           </p>
           <p className='mt-5 text-gray-500 md:w-4/5'>{productdata.description}</p>
          {
-  // productdata.sizes.length === 0 ? (
-  //   <div className="my-8 text-red-500 font-semibold text-lg">
-  //     Out of Stock,
-  //     <br/>New stock coming soon
-  //   </div>
-  // ) : (
+  productdata.sizes.length === 0 ? (
+    <div className="my-8 text-red-500 font-semibold text-lg">
+      Out of Stock,
+      <br/>New stock coming soon
+    </div>
+  ) : (
     <>
       <div className='flex flex-col gap-4 my-8'>
         <p>Select Size</p>
@@ -96,7 +96,7 @@ const Product = () => {
         ADD TO CART
       </button>
     </>
-  // )
+  )
 }
 
           <hr className='mt-8 sm:w-4/5'/>
