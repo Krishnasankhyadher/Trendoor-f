@@ -36,7 +36,7 @@ const Shopcontextprovider = (props) => {
           userId: token ? getUserIdFromToken(token) : null,
           cartAmount: getcartamount()
         },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+        { headers: token ? { token : token } : {} }
       );
 
       if (response.data.success) {
