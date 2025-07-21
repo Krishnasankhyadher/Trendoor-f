@@ -4,6 +4,8 @@ import { Shopcontext } from '../context/Shopcontext'
 
 const Navbar = () => {
     const[visible ,setvisible]=useState(false)
+    const [showDropdown, setShowDropdown] = useState(false);
+
     const {setshowsearch, getcartcount,token, settoken,setcartitems,navigate}=useContext(Shopcontext)
     const logout=()=>{
         navigate('/login')
@@ -35,16 +37,43 @@ const Navbar = () => {
             <div className='flex items-center gap-6'>
                 <img onClick={()=>setshowsearch(true)} src="https://www.svgrepo.com/show/532555/search.svg" alt="no image" className='w-5 cursor-pointer' />
                 <div className='relative group'>
-                   <img onClick={()=> token ? null : navigate('/login')} src="https://www.svgrepo.com/show/512729/profile-round-1342.svg" className='w-5 cursor-pointer' alt="" />
-                   {
-                        token && <div className='group-hover:block hidden absolute dropdown-menu right-0 pt-4'>
-                            <div className='flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded'>
-                                <p onClick={()=>navigate('/order')} className='cursor-pointer hover:text-black'>Orders</p>
-                                <p onClick={logout} className='cursor-pointer hover:text-black'>Logout </p>
-                            </div>
-                        </div>
-                    }
-                </div>
+                <img
+  onClick={() => {
+    if (!token) {
+      navigate('/login');
+    } else {
+      setShowDropdown(prev => !prev);
+    }
+  }}
+  src="https://www.svgrepo.com/show/512729/profile-round-1342.svg"
+  className="w-5 cursor-pointer"
+  alt="User Profile"
+/>
+                  {token && (
+  <div className={`absolute right-0 pt-4 z-10 ${showDropdown ? 'block' : 'hidden'} md:group-hover:block`}>
+    <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded shadow">
+      <p
+        onClick={() => {
+          setShowDropdown(false);
+          navigate('/order');
+        }}
+        className="cursor-pointer hover:text-black"
+      >
+        Orders
+      </p>
+      <p
+        onClick={() => {
+          setShowDropdown(false);
+          logout();
+        }}
+        className="cursor-pointer hover:text-black"
+      >
+        Logout
+      </p>
+    </div>
+  </div>
+)}
+
               <Link to='/cart' className='relative'>
               <img src="https://www.svgrepo.com/show/524270/bag-5.svg" className='w-6 min-w-6' alt="" />
               <p className='absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]'>      {getcartcount()}       </p>
