@@ -1,8 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://tbackend-five.vercel.app/api/:path*"
-    }
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
