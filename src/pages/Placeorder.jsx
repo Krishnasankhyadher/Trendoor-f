@@ -10,7 +10,7 @@ import { toast } from 'react-toastify'
 const Placeorder = () => {
   const [method, setmethod] = useState('cod')
 
-  const { backendurl, token, cartitems, setcartitems, getcartamount, delivery_charge, products, navigate } = useContext(Shopcontext)
+  const { backendurl, token, cartitems, setcartitems, getcartamount, delivery_charge, products, navigate,discount ,promoCode } = useContext(Shopcontext)
   const [formdata, setformdata] = useState({
     firstname: '',
     lastname: '',
@@ -78,7 +78,8 @@ const onsubmithandler = async (e) => {
       amount: getcartamount() + delivery_charge,
       paymentmethod: method,
       payment: false,
-      date: Date.now()
+      date: Date.now(),
+      promoCode: promoCode
     };
 
    
