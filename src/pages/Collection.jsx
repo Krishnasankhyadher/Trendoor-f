@@ -5,7 +5,7 @@ import Productitem from '../components/Productitem'
 import { useLocation } from 'react-router-dom'
 
 const Collection = () => {
-  const { products } = useContext(Shopcontext)
+  const { products, loading } = useContext(Shopcontext) // Add loading state from context
   const [showfilter, setShowfilter] = useState(false)
   const [filterproducts, setfilterproducts] = useState([])
   const [category, setcategory] = useState([])
@@ -35,7 +35,10 @@ const Collection = () => {
   }
 
   const applyfilter = () => {
-    let productscopy = products.slice()
+    // Only apply filters if products are loaded
+    if (!products || products.length === 0) return
+    
+    let productscopy = [...products]
 
     // Apply category filters
     if (category.length > 0) {
@@ -52,7 +55,9 @@ const Collection = () => {
   }
 
   const sortproduct = () => {
-    let fpcopy = [...filterproducts] // Create a new array to avoid mutating state directly
+    if (filterproducts.length === 0) return
+    
+    let fpcopy = [...filterproducts]
     switch (sortType) {
       case 'low-high':
         fpcopy.sort((a, b) => (a.price - b.price))
@@ -61,16 +66,23 @@ const Collection = () => {
         fpcopy.sort((a, b) => (b.price - a.price))
         break
       default:
-        // For 'relevant', we maintain the original filtered order
+        // For 'relevant', maintain original order
         break
     }
     setfilterproducts(fpcopy)
   }
 
-  // Apply filters when category, subcategory, or products change
+  // Initialize filterproducts when products load
+  useEffect(() => {
+    if (products && products.length > 0) {
+      setfilterproducts(products)
+    }
+  }, [products])
+
+  // Apply filters when category, subcategory changes
   useEffect(() => {
     applyfilter()
-  }, [category, subcategory, products])
+  }, [category, subcategory])
 
   // Sort products when sortType changes
   useEffect(() => {
@@ -82,6 +94,14 @@ const Collection = () => {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage
   const currentProducts = filterproducts.slice(indexOfFirstProduct, indexOfLastProduct)
   const totalPages = Math.ceil(filterproducts.length / productsPerPage)
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+      </div>
+    )
+  }
 
   return (
     <div className='flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t'>
@@ -156,12 +176,12 @@ const Collection = () => {
         {/* Products List or Empty State */}
         {filterproducts.length === 0 ? (
           <div className="text-center text-gray-500 text-2xl font-medium py-10 col-span-full align-middle justify-center">
-            {searchQuery ? (
+            {products.length === 0 ? (
+              "Loading products..."
+            ) : searchQuery ? (
               `No products found for "${searchQuery}"`
             ) : (
-              <>
-                Sorry, Products out of stock.<br />New stock coming soon!
-              </>
+              "No products match your filters"
             )}
           </div>
         ) : (

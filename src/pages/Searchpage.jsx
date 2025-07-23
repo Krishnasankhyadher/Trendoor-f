@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { Shopcontext } from '../context/Shopcontext'
 import Title from '../components/Title'
 import Productitem from '../components/Productitem'
+import { Link } from 'react-router-dom'
 
 const SearchPage = () => {
   const { products } = useContext(Shopcontext)
@@ -25,13 +26,18 @@ const SearchPage = () => {
 
   return (
     <div className='flex-1'>
-      <div className='flex justify-between text-base sm:text-2xl mb-4'>
+      <div className='flex justify-between text-base sm:text-2xl mb-4 my-3'>
         <Title text1={'SEARCH'} text2={'RESULTS'}></Title>
       </div>
 
       {filterproducts.length === 0 ? (
         <div className="text-center text-gray-500 text-2xl font-medium py-10 col-span-full align-middle justify-center">
           No products found matching your search.
+          <p className='text-green-500 py-2'>You can browse all collection</p>
+                   <Link to='/Collection'>
+                <button className='bg-black text-white text-base px-15 py-4 text-center'>Browse All Collection</button>
+          </Link>
+
         </div>
       ) : (
         <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6'>

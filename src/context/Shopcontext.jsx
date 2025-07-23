@@ -14,6 +14,7 @@ const Shopcontextprovider = (props) => {
   const [cartitems, setcartitems] = useState({});
   const [products, setproducts] = useState([]);
   const [token, settoken] = useState('');
+  const [loading, setLoading] = useState(true); // Added loading state
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -177,15 +178,20 @@ const Shopcontextprovider = (props) => {
   };
 
   const getproductdata = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`${backendurl}/api/product/list`);
       if (response.data.success) {
         setproducts(response.data.products);
       } else {
         toast.error(response.data.message);
+        setproducts([]); // Ensure products is empty if error occurs
       }
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
+      setproducts([]); // Ensure products is empty if error occurs
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -242,7 +248,11 @@ const Shopcontextprovider = (props) => {
     // Search related functions
     searchQuery,
     performSearch,
-    clearSearch
+    clearSearch,
+    // Loading state
+    loading,
+    // Refresh products function
+    refreshProducts: getproductdata
   };
 
   return (
