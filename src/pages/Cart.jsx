@@ -55,6 +55,7 @@ const Cart = () => {
                   src={product.image[0]}
                   alt={product.name}
                   className="w-16 h-20 object-cover rounded-sm"
+                  loading="lazy"
                 />
                 <div>
                   <p className="font-medium text-sm sm:text-base text-gray-800">{product.name}</p>

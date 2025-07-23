@@ -21,6 +21,7 @@ import AdminAdd from './pages/adminPages/Add'
 import AdminOrder from './pages/adminPages/Order'
 import AdminList from './pages/adminPages/List'
 import AdminPromoCodes from './pages/adminPages/Promotion'
+import PrivacyPolicy from './pages/Privacypolicy'
 
 
 const App = () => {
@@ -47,6 +48,7 @@ const App = () => {
   <Route path='/Placeorder' element={<Placeorder/>}></Route>
   <Route path='/exchange' element={<Exchange/>}></Route>
   <Route path='/delivery' element={<Delivery/>}></Route>
+  <Route path='/privacy' element={<PrivacyPolicy/>}></Route>
   <Route path='/Product/:productId' element={<Product/>}></Route>
  </Routes>
  <Footer/>

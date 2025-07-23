@@ -14,10 +14,10 @@ At Trendoor, we’re redefining fashion. From trendy styles to timeless pieces, 
                 <div>
                     <p className='text-xl font-medium mb-5'>COMPANY</p>
                     <ul className='flex flex-col gap-1 text-gray-600'>
-                        <li>HOME</li>
-                        <li>ABOUT US</li>
-                        <li>DELIVERY</li>
-                        <li>PRIVACY POLICY</li>
+                      <Link to='/'><li>HOME</li></Link>  
+                        <Link to='/About'><li>ABOUT US</li></Link>
+                     <Link to='/delivery'><li>DELIVERY</li></Link>   
+                      <Link to='/privacy'><li>PRIVACY POLICY</li></Link>  
 
                     </ul>
                 </div>

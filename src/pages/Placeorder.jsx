@@ -44,7 +44,7 @@ const onsubmithandler = async (e) => {
     const userid = decoded?.id;
 
     if (!userid) {
-      toast.error("User not authenticated");
+      toast.error("Please login first  to place order");
       return;
     }
 
@@ -139,7 +139,7 @@ const onsubmithandler = async (e) => {
           <div className='flex gap-3 flex-col lg:flex-row'>
             <div onClick={() => setmethod('razorpay')} className='flex items-center gap-3 border p-1 px-3 cursor-pointer'>
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'razorpay' ? 'bg-green-400' : ''}`}></p>
-              <img className='h-4 mx-4' src="images/Screenshot 2025-07-05 232146.png" alt="" />
+              <img className='h-4 mx-4' src="images/Screenshot 2025-07-05 232146.png" alt=""  loading="lazy"/>
 
             </div>
             <div onClick={() => setmethod('cod')} className='flex items-center gap-3 border p-1 px-3 cursor-pointer'>

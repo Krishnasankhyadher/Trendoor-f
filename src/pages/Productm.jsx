@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Shopcontext } from '../context/Shopcontext'
 import Relatedproduct from '../components/Relatedproduct'
+import { toast } from 'react-toastify';
 
 const Product = () => {
   const { productId } = useParams()
@@ -38,13 +39,14 @@ const Product = () => {
               onClick={() => setimage(item)}
               className='w-[24%] sm:w-full sm:h-auto cursor-pointer object-cover border border-gray-200 rounded'
               alt=''
+              loading="lazy"
             />
           ))}
         </div>
 
         {/* Main Product Image */}
         <div className='w-full sm:w-[45%]'>
-          <img src={image} className='w-full h-auto object-contain border border-gray-200 rounded' alt='' />
+          <img src={image} loading="lazy" className='w-full h-auto object-contain border border-gray-200 rounded' alt='' />
         </div>
 
         {/* Product Info */}
@@ -58,6 +60,7 @@ const Product = () => {
                 src='https://www.svgrepo.com/show/475275/star.svg'
                 className='w-4 h-4'
                 alt='star'
+                
               />
             ))}
             <p className='pl-2 text-gray-500'>(122)</p>
@@ -89,19 +92,26 @@ const Product = () => {
           ))}
         </div>
       </div>
-      <button
-        onClick={() => addtocart(productdata._id, size)}
-        className='bg-black text-white px-8 py-3 text-sm active:bg-gray-700'
-      >
-        ADD TO CART
-      </button>
+    <button
+  onClick={() => {
+    if (!size) {
+      toast.error('Please select a size');
+      return;
+    }
+    addtocart(productdata._id, size);
+    toast.success('Added to cart!');
+  }}
+  className='bg-black text-white px-8 py-3 text-sm active:bg-gray-700'
+>
+  ADD TO CART
+</button>
     </>
   )
 }
 
           <hr className='mt-8 sm:w-4/5'/>
           <div className='text-sm text-gray-500 mt-5  flex flex-col gap-1'>
-            <p>Qualityt Check And Fine Product</p>
+            <p>Quality Check And Fine Product</p>
             <p>Cash on delivery is available</p>
             <p>No return and exchange depends on T&C</p>
 

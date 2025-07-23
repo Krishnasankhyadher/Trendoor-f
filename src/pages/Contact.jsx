@@ -9,7 +9,7 @@ const Contact = () => {
 
       </div>
       <div className='my-10 flex flex-col justify-center md:flex-row gap-10 mb-28'>
-        <img src="/Trendoor/images/ChatGPT Image Jul 6, 2025, 01_17_32 PM.png" className='w-full md:max-w-[480px]' alt="" />
+        <img src="/Trendoor/images/ChatGPT Image Jul 6, 2025, 01_17_32 PM.png" className='w-full md:max-w-[480px]' alt=""  loading="lazy"/>
         <div className='flex flex-col justify-center items-start gap-6'>
           <p className='font-semibold text-xl text-gray-600'>OUR STORE</p>
           <p className='text-gray-600'>BHURAPEER Streat No.3 <br />HATHRAS , UTTARPRADESH  </p>

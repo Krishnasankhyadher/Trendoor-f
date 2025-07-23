@@ -9,6 +9,7 @@ const Exchange = () => {
           src="ChatGPT Image Jul 19, 2025, 12_06_31 PM.png" // Replace with your image path
           alt="Exchange Policy"
           className="rounded-2xl shadow-md w-full object-cover"
+          loading="lazy"
         />
       </div>
 

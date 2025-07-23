@@ -20,7 +20,7 @@ const Hero = () => {
 
         </div>
       
-        <img src="/Trendoor/images/ChatGPT Image Jun 30, 2025, 10_42_15 PM.png" className='h-100 w-auto sm:w-1/2' alt="" />
+        <img src="/Trendoor/images/ChatGPT Image Jun 30, 2025, 10_42_15 PM.png" className='h-100 w-auto sm:w-1/2' alt="" loading="lazy" />
     </div>
   )
 }
