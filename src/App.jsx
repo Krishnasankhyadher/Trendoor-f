@@ -22,6 +22,7 @@ import AdminOrder from './pages/adminPages/Order'
 import AdminList from './pages/adminPages/List'
 import AdminPromoCodes from './pages/adminPages/Promotion'
 import PrivacyPolicy from './pages/Privacypolicy'
+import SearchPage from './pages/Searchpage'
 
 
 const App = () => {
@@ -29,7 +30,7 @@ const App = () => {
     <div className='px-4 sm:px-[5vw] md-px-[7vw] lg:px-[9vw]'>
       <ToastContainer/>
       <Navbar/>
-      <Searchbar/>
+      {/* <Searchbar/> */}
  <Routes>
   <Route path='/' element={<Home/>}></Route>
   <Route path = '/admin' element={<Admin/>}>
@@ -49,6 +50,8 @@ const App = () => {
   <Route path='/exchange' element={<Exchange/>}></Route>
   <Route path='/delivery' element={<Delivery/>}></Route>
   <Route path='/privacy' element={<PrivacyPolicy/>}></Route>
+  
+<Route path="/search" element={<SearchPage />} />
   <Route path='/Product/:productId' element={<Product/>}></Route>
  </Routes>
  <Footer/>

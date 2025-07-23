@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createContext } from "react";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const Shopcontext = createContext();
@@ -11,18 +11,40 @@ const Shopcontextprovider = (props) => {
   const delivery_charge = 50;
   const backendurl = import.meta.env.VITE_BACKEND_URL;
 
-  const [search, setsearch] = useState('');
-  const [showsearch, setshowsearch] = useState(false);
   const [cartitems, setcartitems] = useState({});
   const [products, setproducts] = useState([]);
   const [token, settoken] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Promo Code State
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [promoLoading, setPromoLoading] = useState(false);
+
+  // Search functionality
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Initialize search query from URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const query = params.get('q') || '';
+    setSearchQuery(query);
+  }, [location.search]);
+
+  const performSearch = (query) => {
+    if (query.trim()) {
+      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    if (location.pathname === '/search') {
+      navigate('/search');
+    }
+  };
 
   const applyPromoCode = async (code) => {
     if (!code.trim()) return;
@@ -38,7 +60,7 @@ const Shopcontextprovider = (props) => {
         },
         { headers: token ? { token: token } : {} }
       );
-      console.log(response)
+      
       if (response.data.success) {
         setPromoCode(response.data.promoCode);
         setDiscount(response.data.discount);
@@ -198,10 +220,6 @@ const Shopcontextprovider = (props) => {
     products,
     currency,
     delivery_charge,
-    search,
-    setsearch,
-    showsearch,
-    setshowsearch,
     cartitems,
     addtocart,
     getcartcount,
@@ -220,7 +238,11 @@ const Shopcontextprovider = (props) => {
     setDiscount,
     applyPromoCode,
     removePromoCode,
-    promoLoading
+    promoLoading,
+    // Search related functions
+    searchQuery,
+    performSearch,
+    clearSearch
   };
 
   return (

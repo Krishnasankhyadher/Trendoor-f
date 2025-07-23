@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Shopcontext } from '../context/Shopcontext'
 import Relatedproduct from '../components/Relatedproduct'
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 const Product = () => {
   const { productId } = useParams()
@@ -75,6 +76,10 @@ const Product = () => {
     <div className="my-8 text-red-500 font-semibold text-lg">
       Out of Stock,
       <br/>New stock coming soon
+      <br/><p className='text-green-500 py-2'>You can browse all collection</p>
+         <Link to='/Collection'>
+      <button className='bg-black text-white text-base px-15 py-4 text-center'>Browse All Collection</button>
+</Link>
     </div>
   ) : (
     <>

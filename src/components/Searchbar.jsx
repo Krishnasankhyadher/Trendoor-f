@@ -1,33 +1,78 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import { Shopcontext } from '../context/Shopcontext'
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom'
 
-const Searchbar = () => {
-   const { search, setsearch, showsearch, setshowsearch } = useContext(Shopcontext);
-   const[vissible,setvissible]=useState(false)
-   const location =useLocation()
+const Searchbar = ({ onClose }) => {
+    const { searchQuery, performSearch, clearSearch } = useContext(Shopcontext)
+    const [localQuery, setLocalQuery] = useState('')
+    const inputRef = useRef(null)
+    const location = useLocation()
+    const navigate = useNavigate()
 
-   useEffect(()=>{
-    if(location.pathname.includes('Collection') ){
-      setvissible(true)
+    // Initialize local query when searchQuery changes
+    useEffect(() => {
+        setLocalQuery(searchQuery)
+    }, [searchQuery])
 
+    // Focus input when component mounts
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus()
+        }
+    }, [])
+
+    const handleSearch = (e) => {
+        e.preventDefault()
+        if (localQuery.trim()) {
+            performSearch(localQuery)
+            onClose?.()
+        }
     }
-    else{
-      setvissible(false)
+
+    const handleClear = () => {
+        setLocalQuery('')
+        clearSearch()
+        if (location.pathname === '/search') {
+            navigate('/')
+        }
     }
-   },[location])
 
-  return showsearch  && vissible ? (
-    <div className='border-t border-b bg-gray-50 text-center '>
-        <div className='inline-flex items-center justify-center border-gray-400 px-5 py-2 my-5 mx-3 rounded-full w-3/4 sm:w-1/2'>
-        <input value={search} onChange={(e)=>setsearch(e.target.value)} type="text" placeholder='Search' className='flex-1 outline-none bg-gray-100 text-sm p-2 rounded-2xl' />
-        <img src="https://www.svgrepo.com/show/532555/search.svg" className='w-4' alt="" />
-
+    return (
+        <div className='container mx-auto px-4'>
+            <form 
+                onSubmit={handleSearch} 
+                className='relative flex items-center'
+            >
+                <input 
+                    ref={inputRef}
+                    value={localQuery}
+                    onChange={(e) => setLocalQuery(e.target.value)}
+                    type="text" 
+                    placeholder='Search products...' 
+                    className='flex-1 py-2 pl-4 pr-12 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all' 
+                />
+                {localQuery && (
+                    <button 
+                        type="button" 
+                        onClick={handleClear}
+                        className='absolute right-10 p-1 text-gray-500 hover:text-black transition-colors'
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                )}
+                <button 
+                    type="submit"
+                    className='absolute right-2 p-1 text-gray-500 hover:text-black transition-colors'
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                    </svg>
+                </button>
+            </form>
         </div>
-        <img src="https://www.svgrepo.com/show/521590/cross.svg" className='inline w-6 cursor-pointer' onClick={()=>setshowsearch(false)} alt="" />
-      
-    </div>
-  ) :null
+    )
 }
 
 export default Searchbar
