@@ -3,9 +3,10 @@ import { Shopcontext } from '../context/Shopcontext'
 import Title from '../components/Title'
 import Productitem from '../components/Productitem'
 import { useLocation } from 'react-router-dom'
+import Loading from '../components/Loading'
 
 const Collection = () => {
-  const { products, loading } = useContext(Shopcontext) // Add loading state from context
+  const { products, loading } = useContext(Shopcontext)
   const [showfilter, setShowfilter] = useState(false)
   const [filterproducts, setfilterproducts] = useState([])
   const [category, setcategory] = useState([])
@@ -19,75 +20,84 @@ const Collection = () => {
   const searchQuery = new URLSearchParams(location.search).get('q') || ''
 
   const togglecategory = (e) => {
-    if (category.includes(e.target.value)) {
-      setcategory(prev => prev.filter(item => item !== e.target.value))
-    } else {
-      setcategory(prev => [...prev, e.target.value])
-    }
+    const value = e.target.value
+    setcategory(prev => 
+      prev.includes(value) 
+        ? prev.filter(item => item !== value) 
+        : [...prev, value]
+    )
   }
 
   const togglesubcategory = (e) => {
-    if (subcategory.includes(e.target.value)) {
-      setsubcategory(prev => prev.filter(item => item !== e.target.value))
-    } else {
-      setsubcategory(prev => [...prev, e.target.value])
-    }
+    const value = e.target.value
+    setsubcategory(prev => 
+      prev.includes(value) 
+        ? prev.filter(item => item !== value) 
+        : [...prev, value]
+    )
   }
 
   const applyfilter = () => {
-    // Only apply filters if products are loaded
-    if (!products || products.length === 0) return
+    if (!products || products.length === 0) {
+      setfilterproducts([])
+      return
+    }
     
-    let productscopy = [...products]
+    let filtered = [...products]
 
     // Apply category filters
     if (category.length > 0) {
-      productscopy = productscopy.filter(item => category.includes(item.category))
+      filtered = filtered.filter(item => category.includes(item.category))
     }
 
     // Apply subcategory filters
-    if (subcategory.length) {
-      productscopy = productscopy.filter(item => subcategory.includes(item.subcategory))
+    if (subcategory.length > 0) {
+      filtered = filtered.filter(item => subcategory.includes(item.subcategory))
     }
 
-    setfilterproducts(productscopy)
+    setfilterproducts(filtered)
     setCurrentPage(1)
   }
 
-  const sortproduct = () => {
-    if (filterproducts.length === 0) return
+  const sortproduct = (productsToSort) => {
+    if (!productsToSort || productsToSort.length === 0) return productsToSort
     
-    let fpcopy = [...filterproducts]
+    const sorted = [...productsToSort]
     switch (sortType) {
       case 'low-high':
-        fpcopy.sort((a, b) => (a.price - b.price))
-        break
+        return sorted.sort((a, b) => a.price - b.price)
       case 'high-low':
-        fpcopy.sort((a, b) => (b.price - a.price))
-        break
+        return sorted.sort((a, b) => b.price - a.price)
       default:
-        // For 'relevant', maintain original order
-        break
+        return sorted
     }
-    setfilterproducts(fpcopy)
   }
 
-  // Initialize filterproducts when products load
+  // Initialize and apply filters when products load
   useEffect(() => {
     if (products && products.length > 0) {
-      setfilterproducts(products)
+      const filtered = applyFilters(products, category, subcategory)
+      const sorted = sortproduct(filtered)
+      setfilterproducts(sorted)
+    } else {
+      setfilterproducts([])
     }
-  }, [products])
+  }, [products, category, subcategory, sortType])
 
-  // Apply filters when category, subcategory changes
-  useEffect(() => {
-    applyfilter()
-  }, [category, subcategory])
-
-  // Sort products when sortType changes
-  useEffect(() => {
-    sortproduct()
-  }, [sortType])
+  // Helper function to apply filters
+  const applyFilters = (products, categories, subcategories) => {
+    let filtered = [...products]
+    
+    if (categories.length > 0) {
+      filtered = filtered.filter(item => categories.includes(item.category))
+    }
+    
+    if (subcategories.length > 0) {
+      filtered = filtered.filter(item => subcategories.includes(item.subcategory))
+    }
+    
+    return filtered
+  }
 
   // Pagination Logic
   const indexOfLastProduct = currentPage * productsPerPage
@@ -95,12 +105,8 @@ const Collection = () => {
   const currentProducts = filterproducts.slice(indexOfFirstProduct, indexOfLastProduct)
   const totalPages = Math.ceil(filterproducts.length / productsPerPage)
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
-      </div>
-    )
+  if (loading.global || loading.products) {
+    return <Loading />
   }
 
   return (
@@ -166,6 +172,7 @@ const Collection = () => {
             onChange={(e) => setsortType(e.target.value)} 
             value={sortType}
             className='border-2 border-gray-300 text-sm px-2'
+            disabled={filterproducts.length === 0}
           >
             <option value="relevant">Sort by: Relevant</option>
             <option value="low-high">Sort by: Low to High</option>
@@ -175,9 +182,9 @@ const Collection = () => {
 
         {/* Products List or Empty State */}
         {filterproducts.length === 0 ? (
-          <div className="text-center text-gray-500 text-2xl font-medium py-10 col-span-full align-middle justify-center">
+          <div className="text-center text-gray-500 text-lg sm:text-2xl font-medium py-10 col-span-full align-middle justify-center">
             {products.length === 0 ? (
-              "Loading products..."
+              "No products available"
             ) : searchQuery ? (
               `No products found for "${searchQuery}"`
             ) : (
@@ -212,7 +219,9 @@ const Collection = () => {
                   <button
                     key={index}
                     onClick={() => setCurrentPage(index + 1)}
-                    className={`px-3 py-1 border rounded ${currentPage === index + 1 ? 'bg-black text-white' : ''}`}
+                    className={`px-3 py-1 border rounded ${
+                      currentPage === index + 1 ? 'bg-black text-white' : ''
+                    }`}
                   >
                     {index + 1}
                   </button>

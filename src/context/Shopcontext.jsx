@@ -14,7 +14,13 @@ const Shopcontextprovider = (props) => {
   const [cartitems, setcartitems] = useState({});
   const [products, setproducts] = useState([]);
   const [token, settoken] = useState('');
-  const [loading, setLoading] = useState(true); // Added loading state
+  const [loading, setLoading] = useState({
+    global: false,
+    products: true,
+    cart: false,
+    auth: false
+  });
+  
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,6 +40,16 @@ const Shopcontextprovider = (props) => {
     setSearchQuery(query);
   }, [location.search]);
 
+  // Helper function for async operations with loading states
+  const withLoading = async (fn, loadingType = 'global') => {
+    try {
+      setLoading(prev => ({ ...prev, [loadingType]: true }));
+      return await fn();
+    } finally {
+      setLoading(prev => ({ ...prev, [loadingType]: false }));
+    }
+  };
+
   const performSearch = (query) => {
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
@@ -50,34 +66,38 @@ const Shopcontextprovider = (props) => {
   const applyPromoCode = async (code) => {
     if (!code.trim()) return;
     
-    setPromoLoading(true);
-    try {
-      const response = await axios.post(
-        `${backendurl}/api/promo/validate`,
-        { 
-          code,
-          userId: token ? getUserIdFromToken(token) : null,
-          cartAmount: getcartamount()
-        },
-        { headers: token ? { token: token } : {} }
-      );
-      
-      if (response.data.success) {
-        setPromoCode(response.data.promoCode);
-        setDiscount(response.data.discount);
-        setPromoApplied(true);
-        toast.success("Promo code applied successfully!");
-      } else {
-        throw new Error(response.data.message);
+    return withLoading(async () => {
+      try {
+        setPromoLoading(true);
+        const response = await axios.post(
+          `${backendurl}/api/promo/validate`,
+          { 
+            code,
+            userId: token ? getUserIdFromToken(token) : null,
+            cartAmount: getcartamount()
+          },
+          { headers: token ? { token: token } : {} }
+        );
+        
+        if (response.data.success) {
+          setPromoCode(response.data.promoCode);
+          setDiscount(response.data.discount);
+          setPromoApplied(true);
+          toast.success("Promo code applied successfully!");
+          return true;
+        } else {
+          throw new Error(response.data.message);
+        }
+      } catch (error) {
+        setPromoCode('');
+        setDiscount(0);
+        setPromoApplied(false);
+        toast.error(error.response?.data?.message || error.message || "Failed to apply promo code");
+        return false;
+      } finally {
+        setPromoLoading(false);
       }
-    } catch (error) {
-      setPromoCode('');
-      setDiscount(0);
-      setPromoApplied(false);
-      toast.error(error.response?.data?.message || error.message || "Failed to apply promo code");
-    } finally {
-      setPromoLoading(false);
-    }
+    }, 'global');
   };
 
   const removePromoCode = () => {
@@ -99,26 +119,29 @@ const Shopcontextprovider = (props) => {
   const addtocart = async (itemid, size) => {
     if (!size) return toast.error('Select your size');
 
-    let cartdata = structuredClone(cartitems);
-    if (cartdata[itemid] && cartdata[itemid][size] >= 1) {
-      return toast.warn('Only 1 quantity allowed per product');
-    }
-
-    if (!cartdata[itemid]) cartdata[itemid] = {};
-    cartdata[itemid][size] = 1;
-    setcartitems(cartdata);
-
-    if (token) {
-      try {
-        await axios.post(
-          `${backendurl}/api/cart/add`,
-          { itemid, size },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      } catch (error) {
-        toast.error(error.response?.data?.message || error.message);
+    return withLoading(async () => {
+      let cartdata = structuredClone(cartitems);
+      if (cartdata[itemid] && cartdata[itemid][size] >= 1) {
+        toast.warn('Only 1 quantity allowed per product');
+        return;
       }
-    }
+
+      if (!cartdata[itemid]) cartdata[itemid] = {};
+      cartdata[itemid][size] = 1;
+      setcartitems(cartdata);
+
+      if (token) {
+        try {
+          await axios.post(
+            `${backendurl}/api/cart/add`,
+            { itemid, size },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        } catch (error) {
+          toast.error(error.response?.data?.message || error.message);
+        }
+      }
+    }, 'cart');
   };
 
   const getcartcount = () => {
@@ -136,31 +159,33 @@ const Shopcontextprovider = (props) => {
   const updatequantity = async (itemid, size, quantity) => {
     if (quantity > 1) return toast.warn('Only 1 quantity allowed per product');
 
-    let cartdata = structuredClone(cartitems);
-    if (!cartdata[itemid]) cartdata[itemid] = {};
+    return withLoading(async () => {
+      let cartdata = structuredClone(cartitems);
+      if (!cartdata[itemid]) cartdata[itemid] = {};
 
-    if (quantity === 0) {
-      delete cartdata[itemid][size];
-      if (Object.keys(cartdata[itemid]).length === 0) {
-        delete cartdata[itemid];
+      if (quantity === 0) {
+        delete cartdata[itemid][size];
+        if (Object.keys(cartdata[itemid]).length === 0) {
+          delete cartdata[itemid];
+        }
+      } else {
+        cartdata[itemid][size] = quantity;
       }
-    } else {
-      cartdata[itemid][size] = quantity;
-    }
 
-    setcartitems(cartdata);
+      setcartitems(cartdata);
 
-    if (token) {
-      try {
-        await axios.post(
-          `${backendurl}/api/cart/update`,
-          { itemid, size, quantity },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      } catch (error) {
-        toast.error(error.response?.data?.message || error.message);
+      if (token) {
+        try {
+          await axios.post(
+            `${backendurl}/api/cart/update`,
+            { itemid, size, quantity },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        } catch (error) {
+          toast.error(error.response?.data?.message || error.message);
+        }
       }
-    }
+    }, 'cart');
   };
 
   const getcartamount = () => {
@@ -178,36 +203,79 @@ const Shopcontextprovider = (props) => {
   };
 
   const getproductdata = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${backendurl}/api/product/list`);
-      if (response.data.success) {
-        setproducts(response.data.products);
-      } else {
-        toast.error(response.data.message);
-        setproducts([]); // Ensure products is empty if error occurs
+    return withLoading(async () => {
+      try {
+        const response = await axios.get(`${backendurl}/api/product/list`);
+        if (response.data.success) {
+          setproducts(response.data.products);
+        } else {
+          toast.error(response.data.message);
+          setproducts([]);
+        }
+      } catch (error) {
+        toast.error(error.response?.data?.message || error.message);
+        setproducts([]);
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
-      setproducts([]); // Ensure products is empty if error occurs
-    } finally {
-      setLoading(false);
-    }
+    }, 'products');
   };
 
   const getcartitems = async (token) => {
-    try {
-      const response = await axios.post(
-        `${backendurl}/api/cart/get`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (response.data.success) {
-        setcartitems(response.data.cartdata);
+    return withLoading(async () => {
+      try {
+        const response = await axios.post(
+          `${backendurl}/api/cart/get`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (response.data.success) {
+          setcartitems(response.data.cartdata);
+        }
+      } catch (error) {
+        toast.error(error.response?.data?.message || error.message);
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
-    }
+    }, 'cart');
+  };
+
+  const loginUser = async (credentials) => {
+    return withLoading(async () => {
+      try {
+        const response = await axios.post(`${backendurl}/api/auth/login`, credentials);
+        if (response.data.success) {
+          const { token } = response.data;
+          settoken(token);
+          localStorage.setItem('token', token);
+          await getcartitems(token);
+          return true;
+        }
+        throw new Error(response.data.message || 'Login failed');
+      } catch (error) {
+        toast.error(error.response?.data?.message || error.message || "Login failed");
+        return false;
+      }
+    }, 'auth');
+  };
+
+  const registerUser = async (userData) => {
+    return withLoading(async () => {
+      try {
+        const response = await axios.post(`${backendurl}/api/auth/register`, userData);
+        if (response.data.success) {
+          toast.success("Registration successful! Please login.");
+          return true;
+        }
+        throw new Error(response.data.message || 'Registration failed');
+      } catch (error) {
+        toast.error(error.response?.data?.message || error.message || "Registration failed");
+        return false;
+      }
+    }, 'auth');
+  };
+
+  const logoutUser = () => {
+    localStorage.removeItem('token');
+    settoken('');
+    setcartitems({});
+    navigate('/login');
   };
 
   useEffect(() => {
@@ -245,14 +313,21 @@ const Shopcontextprovider = (props) => {
     applyPromoCode,
     removePromoCode,
     promoLoading,
-    // Search related functions
+    // Search related
     searchQuery,
     performSearch,
     clearSearch,
-    // Loading state
+    // Loading states
     loading,
-    // Refresh products function
-    refreshProducts: getproductdata
+    // Auth functions
+    loginUser,
+    registerUser,
+    logoutUser,
+    // Data fetching
+    refreshProducts: getproductdata,
+    refreshCart: getcartitems,
+    // Helper function
+    withLoading
   };
 
   return (

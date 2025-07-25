@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { Shopcontext } from '../context/Shopcontext';
 
 const Newsletter = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const {backendurl} =useContext(Shopcontext)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +19,7 @@ const Newsletter = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post('http://localhost:3000/api/mail/subscribe', { email });
+      const res = await axios.post(`${backendurl}/api/mail/subscribe`, { email });
 
       if (res.data.success) {
         toast.success(res.data.message);
