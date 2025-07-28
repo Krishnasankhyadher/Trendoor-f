@@ -27,6 +27,7 @@ const Exchange = () => {
           <li>Size issue (based on size chart mismatch).</li>
           <li>Product received is completely different from the product image.</li>
           <li>Major mismatch in color, pattern, or style compared to photos shown on our website.</li>
+          <li>We initiate yor exchange if its genuine and deliver the product within a time frame of 5-7 days .</li>
         </ul>
 
         <p className="text-gray-700 mt-4">
