@@ -30,7 +30,7 @@ const PrivacyPolicy = () => {
 
       <h2 className="text-xl font-semibold mb-2">5. Your Rights</h2>
       <p className="mb-4">
-        You have the right to access, correct, or delete your personal data. Contact us at [your email] for requests.
+        You have the right to access, correct, or delete your personal data. Contact us at Trendoorcontact@gmail.com for requests.
       </p>
 
       <h2 className="text-xl font-semibold mb-2">6. Contact Us</h2>
