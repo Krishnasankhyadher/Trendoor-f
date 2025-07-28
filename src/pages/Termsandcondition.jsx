@@ -11,7 +11,7 @@ const TermsAndConditions = () => {
       </p>
 
       <p className="mb-4">
-        The Platform is owned by Trendoor, a company incorporated under the Companies Act, 1956 with its registered office at Hathras (hereinafter referred to as ‘Platform Owner’, 'we', 'us', 'our').
+        The Platform is owned by krishna sankhyadhar, a company incorporated under the Companies Act, 1956 with its registered office at Hathras (hereinafter referred to as ‘Platform Owner’, 'we', 'us', 'our').
       </p>
 
       <p className="mb-4">
