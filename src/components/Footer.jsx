@@ -18,6 +18,7 @@ At Trendoor, we’re redefining fashion. From trendy styles to timeless pieces, 
                         <Link to='/About'><li>ABOUT US</li></Link>
                      <Link to='/delivery'><li>DELIVERY</li></Link>   
                       <Link to='/privacy'><li>PRIVACY POLICY</li></Link>  
+                      <Link to='/terms'><li>TERMS AND CONDITION</li></Link>  
 
                     </ul>
                 </div>

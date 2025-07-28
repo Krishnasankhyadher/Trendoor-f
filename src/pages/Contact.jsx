@@ -13,7 +13,7 @@ const Contact = () => {
         <div className='flex flex-col justify-center items-start gap-6'>
           <p className='font-semibold text-xl text-gray-600'>OUR STORE</p>
           <p className='text-gray-600'>BHURAPEER Streat No.3 <br />HATHRAS , UTTARPRADESH  </p>
-          <p className='text-gray-600'>Tel:(+91) 9412589173 <br /> Email: Krishnasankhyadher@gmail.com </p>
+          <p className='text-gray-600'>Tel:(+91) 9412589173 <br /> Email: Trendoorcontact@gmail.com </p>
           <p className='font-semibold text-xl text-gray-600'>Carrers at Trendoor</p>
           <p className='text-gray-600'>Learn more about our terms and  job opportunity in future. </p>
           <button className='border border-black px-8 py-4 text-sm hover:bg-black hover:text-white transition-all duration-500'>Explore Now</button>

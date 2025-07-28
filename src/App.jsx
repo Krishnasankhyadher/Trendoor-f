@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import Loading from './components/Loading'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import TermsAndConditions from './pages/Termsandcondition'
 
 // Lazy-loaded components for better performance
 const Home = React.lazy(() => import('./pages/Homem'))
@@ -61,6 +62,7 @@ const App = () => {
             <Route path='/delivery' element={<Delivery />} />
             <Route path='/privacy' element={<PrivacyPolicy />} />
             <Route path='/search' element={<SearchPage />} />
+            <Route path='/terms' element={<TermsAndConditions />} />
             <Route path='/product/:productId' element={<Product />} />
             
             {/* Admin Routes */}

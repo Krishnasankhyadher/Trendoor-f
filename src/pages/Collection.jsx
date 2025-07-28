@@ -129,7 +129,7 @@ const Collection = () => {
         <div className={`border border-gray-300 pl-5 py-3 mt-6 ${showfilter ? '' : 'hidden'} sm:block`}>
           <p className='mb-3 text-sm font-medium'>CATEGORIES</p>
           <div className='flex flex-col gap-2 text-sm font-light text-gray-700'>
-            {['women', 'men', 'kids'].map((cat) => (
+            {['women', 'men', ].map((cat) => (
               <label key={cat} className='flex gap-2 items-center cursor-pointer'>
                 <input 
                   type="checkbox" 
