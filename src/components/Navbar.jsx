@@ -143,7 +143,7 @@ const Navbar = () => {
                             >
                                 <img 
                                     className='w-5' 
-                                    src="https://www.svgrepo.com/show/533623/close.svg" 
+                                    src="https://www.svgrepo.com/show/509072/cross.svg" 
                                     alt="Close Menu" 
                                 />
                                 <p className='font-medium'>Close</p>

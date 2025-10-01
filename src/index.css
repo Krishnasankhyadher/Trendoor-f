@@ -7,6 +7,59 @@ a.active hr{
 ::-webkit-scrollbar{
   display: none;
 }
+/* src/components/PhonePePaymentButton.css */
+.phonepe-button {
+  background-color: #5f259f;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background-color 0.3s;
+}
+
+.phonepe-button:hover {
+  background-color: #4a1d7d;
+}
+
+.phonepe-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.phonepe-logo {
+  height: 20px;
+  width: auto;
+}
+
+.payment-error {
+  color: #d32f2f;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+@keyframes zoomInOut {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@media (min-width: 768px) {
+  .animate-pulse {
+    width: 120px !important;
+    height: 120px !important;
+  }
+}
+
 @media(max-width:640px){
   a.active{
     background-color: black;

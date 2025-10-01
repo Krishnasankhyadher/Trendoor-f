@@ -6,6 +6,10 @@ import Loading from './components/Loading'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import TermsAndConditions from './pages/Termsandcondition'
+ import ScrollToTop from './components/Scrolltotop'
+ import PaymentCallbackHandler from './components/PayementCallbackhandler'
+ import OrderSuccess from './pages/OrderSuccess'
+ import OrderFailed from './pages/OrderFailed'
 
 // Lazy-loaded components for better performance
 const Home = React.lazy(() => import('./pages/Homem'))
@@ -29,6 +33,7 @@ const AdminOrder = React.lazy(() => import('./pages/adminPages/Order'))
 const AdminList = React.lazy(() => import('./pages/adminPages/List'))
 const AdminPromoCodes = React.lazy(() => import('./pages/adminPages/Promotion'))
 
+
 const App = () => {
   return (
     <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] min-h-screen flex flex-col'>
@@ -48,6 +53,7 @@ const App = () => {
       
       <main className="flex-grow">
         <Suspense fallback={<Loading />}>
+            <ScrollToTop/>
           <Routes>
             {/* Public Routes */}
             <Route path='/' element={<Home />} />
@@ -63,7 +69,16 @@ const App = () => {
             <Route path='/privacy' element={<PrivacyPolicy />} />
             <Route path='/search' element={<SearchPage />} />
             <Route path='/terms' element={<TermsAndConditions />} />
+            {/* <Route path='/checkout' element={<PaymentCallback />} /> */}
             <Route path='/product/:productId' element={<Product />} />
+            {/*payment routes*/}
+               <Route 
+        path="/payment-callback/:transactionId" 
+        element={<PaymentCallbackHandler />} 
+      />
+      <Route path="/order-success" element={<OrderSuccess />} />
+      <Route path="/payment-failed" element={<OrderFailed />} />
+      
             
             {/* Admin Routes */}
             <Route path='/admin' element={<Admin />}>

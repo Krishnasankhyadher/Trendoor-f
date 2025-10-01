@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { createContext } from "react";
 import { toast } from "react-toastify";
@@ -20,6 +21,11 @@ const Shopcontextprovider = (props) => {
     cart: false,
     auth: false
   });
+  
+  // Payment states (added new states)
+  const [paymentstatus, setpaymentstatus] = useState(null);
+  const [currentorder, setcurrentorder] = useState(null);
+
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,6 +55,54 @@ const Shopcontextprovider = (props) => {
       setLoading(prev => ({ ...prev, [loadingType]: false }));
     }
   };
+  // NEW: PhonePe payment functions
+  const initiatephonepay = async (orderid, amount) => {
+    return withLoading(async () => {
+      try {
+        const response = await axios.post(
+          `${backendurl}/api/payment/initiate`,
+          { 
+            amount: amount * 100, // Convert to paise
+            orderId: orderid,
+            userId: getUserIdFromToken(token)
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (response.data.success) {
+          setcurrentorder({ orderid, amount });
+          return response.data.url;
+        }
+        throw new Error(response.data.message || 'Payment initiation failed');
+      } catch (error) {
+        console.error('Payment error:', error);
+        toast.error(error.response?.data?.message || 'Payment initiation failed');
+        throw error;
+      }
+    }, 'payment');
+  };
+
+  // NEW: Verify payment status
+  const verifypayment = async (transactionid) => {
+    return withLoading(async () => {
+      try {
+        const response = await axios.get(
+          `${backendurl}/api/payment/status/${transactionid}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (response.data.success) {
+          setpaymentstatus(response.data.paymentStatus);
+          return response.data;
+        }
+        throw new Error(response.data.message || 'Payment verification failed');
+      } catch (error) {
+        console.error('Payment verification error:', error);
+        throw error;
+      }
+    }, 'payment');
+  };
+
 
   const performSearch = (query) => {
     if (query.trim()) {
@@ -327,7 +381,12 @@ const Shopcontextprovider = (props) => {
     refreshProducts: getproductdata,
     refreshCart: getcartitems,
     // Helper function
-    withLoading
+    withLoading,
+     // NEW: Payment related values
+    paymentstatus,
+    currentorder,
+    initiatephonepay,
+    verifypayment
   };
 
   return (
