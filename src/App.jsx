@@ -1,17 +1,17 @@
 import React, { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom' // Added useLocation
 import { ToastContainer } from 'react-toastify'
+import { AnimatePresence } from 'framer-motion' // Added AnimatePresence
 import 'react-toastify/dist/ReactToastify.css'
+
+// Components
 import Loading from './components/Loading'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import TermsAndConditions from './pages/Termsandcondition'
- import ScrollToTop from './components/Scrolltotop'
- import PaymentCallbackHandler from './components/PayementCallbackhandler'
- import OrderSuccess from './pages/OrderSuccess'
- import OrderFailed from './pages/OrderFailed'
+import ScrollToTop from './components/Scrolltotop'
+import PaymentCallbackHandler from './components/PayementCallbackhandler'
 
-// Lazy-loaded components for better performance
+// Lazy Loaded Pages
 const Home = React.lazy(() => import('./pages/Homem'))
 const Cart = React.lazy(() => import('./pages/Cart'))
 const About = React.lazy(() => import('./pages/About'))
@@ -24,17 +24,22 @@ const Product = React.lazy(() => import('./pages/Productm'))
 const Exchange = React.lazy(() => import('./pages/Exchange'))
 const Delivery = React.lazy(() => import('./pages/Delivery'))
 const PrivacyPolicy = React.lazy(() => import('./pages/Privacypolicy'))
+const TermsAndConditions = React.lazy(() => import('./pages/Termsandcondition'))
 const SearchPage = React.lazy(() => import('./pages/Searchpage'))
+const OrderSuccess = React.lazy(() => import('./pages/OrderSuccess'))
+const OrderFailed = React.lazy(() => import('./pages/OrderFailed'))
 
-// Admin routes
+// Admin Routes (Lazy)
 const Admin = React.lazy(() => import('./admin/Admin'))
 const AdminAdd = React.lazy(() => import('./pages/adminPages/Add'))
 const AdminOrder = React.lazy(() => import('./pages/adminPages/Order'))
 const AdminList = React.lazy(() => import('./pages/adminPages/List'))
 const AdminPromoCodes = React.lazy(() => import('./pages/adminPages/Promotion'))
 
-
 const App = () => {
+  // Hook to detect route changes for animation
+  const location = useLocation();
+
   return (
     <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] min-h-screen flex flex-col'>
       <ToastContainer
@@ -48,50 +53,52 @@ const App = () => {
         draggable
         pauseOnHover
       />
-      
+
       <Navbar />
       
+      {/* ScrollToTop handles scroll reset on route change */}
+      <ScrollToTop />
+
       <main className="flex-grow">
         <Suspense fallback={<Loading />}>
-            <ScrollToTop/>
-          <Routes>
-            {/* Public Routes */}
-            <Route path='/' element={<Home />} />
-            <Route path='/about' element={<About />} />
-            <Route path='/cart' element={<Cart />} />
-            <Route path='/collection' element={<Collection />} />
-            <Route path='/contact' element={<Contact />} />
-            <Route path='/login' element={<Loginm />} />
-            <Route path='/order' element={<Order />} />
-            <Route path='/placeorder' element={<Placeorder />} />
-            <Route path='/exchange' element={<Exchange />} />
-            <Route path='/delivery' element={<Delivery />} />
-            <Route path='/privacy' element={<PrivacyPolicy />} />
-            <Route path='/search' element={<SearchPage />} />
-            <Route path='/terms' element={<TermsAndConditions />} />
-            {/* <Route path='/checkout' element={<PaymentCallback />} /> */}
-            <Route path='/product/:productId' element={<Product />} />
-            {/*payment routes*/}
-               <Route 
-        path="/payment-callback/:transactionId" 
-        element={<PaymentCallbackHandler />} 
-      />
-      <Route path="/order-success" element={<OrderSuccess />} />
-      <Route path="/payment-failed" element={<OrderFailed />} />
-      
-            
-            {/* Admin Routes */}
-            <Route path='/admin' element={<Admin />}>
-              <Route path='add' element={<AdminAdd />} />
-              <Route path='orders' element={<AdminOrder />} />
-              <Route path='list' element={<AdminList />} />
-              <Route path='promo' element={<AdminPromoCodes />} />
-              <Route index element={<AdminList />} />
-            </Route>
+          {/* AnimatePresence enables the exit animations */}
+          <AnimatePresence mode='wait'>
+            {/* Location and Key are required for Framer Motion to detect page changes */}
+            <Routes location={location} key={location.pathname}>
+              
+              {/* --- Public Routes --- */}
+              <Route path='/' element={<Home />} />
+              <Route path='/about' element={<About />} />
+              <Route path='/cart' element={<Cart />} />
+              <Route path='/collection' element={<Collection />} />
+              <Route path='/contact' element={<Contact />} />
+              <Route path='/login' element={<Loginm />} />
+              <Route path='/order' element={<Order />} />
+              <Route path='/placeorder' element={<Placeorder />} />
+              <Route path='/exchange' element={<Exchange />} />
+              <Route path='/delivery' element={<Delivery />} />
+              <Route path='/privacy' element={<PrivacyPolicy />} />
+              <Route path='/search' element={<SearchPage />} />
+              <Route path='/terms' element={<TermsAndConditions />} />
+              <Route path='/product/:productId' element={<Product />} />
 
-            {/* 404 Page - Add this if you have one */}
-            {/* <Route path='*' element={<NotFound />} /> */}
-          </Routes>
+              {/* --- Payment & Status Routes --- */}
+              <Route path="/payment-callback/:transactionId" element={<PaymentCallbackHandler />} />
+              <Route path="/order-success" element={<OrderSuccess />} />
+              <Route path="/payment-failed" element={<OrderFailed />} />
+      
+              {/* --- Admin Routes --- */}
+              {/* Note: Admin routes usually don't need fancy transitions, but they are included here */}
+              <Route path='/admin' element={<Admin />}>
+                <Route path='add' element={<AdminAdd />} />
+                <Route path='orders' element={<AdminOrder />} />
+                <Route path='list' element={<AdminList />} />
+                <Route path='promo' element={<AdminPromoCodes />} />
+                <Route index element={<AdminList />} />
+              </Route>
+
+            </Routes>
+          </AnimatePresence>
         </Suspense>
       </main>
       

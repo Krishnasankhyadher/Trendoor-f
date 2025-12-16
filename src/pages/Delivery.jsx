@@ -1,7 +1,10 @@
 import React from 'react'
+import PageTransition from '../components/Pagetransition'
 
 const Delivery = () => {
   return (
+    <PageTransition>
+
     <div className="px-6 md:px-20 py-10">
       <h2 className="text-3xl font-semibold mb-6">Delivery Policy</h2>
 
@@ -38,6 +41,7 @@ const Delivery = () => {
         </p>
       </div>
     </div>
+    </PageTransition>
   )
 }
 

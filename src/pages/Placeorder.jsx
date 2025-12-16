@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { Shopcontext } from '../context/Shopcontext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import PageTransition from '../components/Pagetransition'
 
 const Placeorder = () => {
   const [method, setMethod] = useState('phonepay')
@@ -168,6 +169,8 @@ const Placeorder = () => {
   }
 
   return (
+    <PageTransition>
+
     <form onSubmit={onsubmithandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'>
       <div className='flex flex-col gap-4 w-full sm:max-w-[480px]'>
         <div className='text-xl sm:text-2xl my-3'>
@@ -253,7 +256,7 @@ const Placeorder = () => {
       : 'hover:bg-gray-800 hover:scale-[1.01] active:scale-[0.99]'
     }
     overflow-hidden
-  `}
+    `}
 >
   {/* Button text */}
   <span className={`relative z-10 ${isProcessing ? 'opacity-0' : 'opacity-100'}`}>
@@ -268,7 +271,7 @@ const Placeorder = () => {
         xmlns="http://www.w3.org/2000/svg" 
         fill="none" 
         viewBox="0 0 24 24"
-      >
+        >
         <circle 
           className="opacity-25" 
           cx="12" 
@@ -291,6 +294,7 @@ const Placeorder = () => {
         </div>
       </div>
     </form>
+          </PageTransition>
   )
 }
 

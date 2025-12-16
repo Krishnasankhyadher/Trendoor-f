@@ -1,7 +1,10 @@
 import React from 'react';
+import PageTransition from '../components/Pagetransition';
 
 const Exchange = () => {
   return (
+    <PageTransition>
+
     <div className="flex justify-center px-4 py-12">
       <div className="max-w-3xl text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">
@@ -46,6 +49,7 @@ const Exchange = () => {
         </p>
       </div>
     </div>
+    </PageTransition>
   );
 };
 

@@ -1,15 +1,26 @@
-import React, { useContext, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import React, { useContext, useState, useEffect } from 'react'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Shopcontext } from '../context/Shopcontext'
 import Searchbar from './Searchbar'
 
 const Navbar = () => {
-    const [visible, setVisible] = useState(false)
+    // Removed 'visible' state since we replaced the side drawer
     const [showDropdown, setShowDropdown] = useState(false)
     const [showSearch, setShowSearch] = useState(false)
+    const [scrolled, setScrolled] = useState(false)
 
     const { getcartcount, token, settoken, setcartitems, navigate } = useContext(Shopcontext)
-    
+    const location = useLocation()
+
+    // Scroll effect
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 10)
+        }
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
+
     const logout = () => {
         navigate('/login')
         localStorage.removeItem('token')
@@ -18,163 +29,97 @@ const Navbar = () => {
     }
 
     return (
-        <div className='sticky top-0 z-50 bg-white shadow-sm'>
-            <div className='container mx-auto px-4'>
-                <div className='flex items-center justify-between py-4'>
-                    {/* Logo */}
-                    <Link to='/' className='flex items-center'>
+        <div className={`sticky top-0 z-50 w-full bg-white transition-all duration-300 ${scrolled ? 'shadow-sm' : ''}`}>
+            
+            {/* --- Main Header Row (Logo & Icons) --- */}
+            <div className={`container mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300 ${scrolled ? 'py-3' : 'py-5'}`}>
+                <div className='flex items-center justify-between'>
+                    
+                    {/* --- Logo --- */}
+                    <Link to='/' className='flex-shrink-0'>
                         <img 
                             src="/Trendoor/images/Screenshot 2025-06-30 141043.png"  
                             loading="lazy" 
-                            alt="Trendoor Logo" 
-                            className='w-36 hover:opacity-90 transition-opacity' 
+                            alt="Trendoor" 
+                            className={`transition-all duration-300 object-contain ${scrolled ? 'w-32' : 'w-40'}`} 
                         />
                     </Link>  
                     
-                    {/* Desktop Navigation */}
-                    <ul className='hidden sm:flex gap-8 text-gray-800'>
+                    {/* --- Desktop Navigation (Hidden on Mobile) --- */}
+                    <nav className='hidden md:flex gap-10'>
                         {['Home', 'Collection', 'About', 'Contact'].map((item) => (
-                            <li key={item}>
-                                <NavLink 
-                                    to={`/${item === 'Home' ? '' : item}`} 
-                                    className={({ isActive }) => 
-                                        `relative py-2 px-1 text-sm font-medium transition-colors hover:text-black
-                                        ${isActive ? 'text-black' : 'text-gray-600'}`
-                                    }
-                                >
-                                    {item}
-                                    <span className={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300 
-                                        ${({ isActive }) => isActive ? 'w-full' : 'w-0'}`}
-                                    />
-                                </NavLink>
-                            </li>
+                            <NavLink 
+                                key={item}
+                                to={`/${item === 'Home' ? '' : item}`} 
+                                className={({ isActive }) => 
+                                    `group relative text-sm font-bold uppercase tracking-widest transition-colors duration-300
+                                    ${isActive ? 'text-black' : 'text-gray-500 hover:text-black'}`
+                                }
+                            >
+                                {item}
+                                <span className={`absolute -bottom-1 left-0 h-0.5 bg-black transition-all duration-300 ease-out
+                                    ${({ isActive }) => isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}
+                                ></span>
+                            </NavLink>
                         ))}
-                    </ul>
+                    </nav>
                     
-                    {/* Icons */}
-                    <div className='flex items-center gap-6'>
-                        {/* Search Icon */}
-                        <button 
-                            onClick={() => setShowSearch(!showSearch)}
-                            className='p-1 hover:bg-gray-100 rounded-full transition-colors'
-                        >
-                            <img 
-                                src="https://www.svgrepo.com/show/532555/search.svg" 
-                                alt="Search" 
-                                className='w-5 h-5' 
-                            />
+                    {/* --- Icons --- */}
+                    <div className='flex items-center gap-5'>
+                        
+                        {/* Search */}
+                        <button onClick={() => setShowSearch(!showSearch)} className='group p-1'>
+                            <img src="https://www.svgrepo.com/show/532555/search.svg" alt="Search" className='w-6 h-6 opacity-60 group-hover:opacity-100 transition-opacity' />
                         </button>
                         
-                        {/* User Profile */}
+                        {/* Profile Dropdown */}
                         <div className='relative group'>
-                            <button
-                                onClick={() => {
-                                    if (!token) {
-                                        navigate('/login')
-                                    } else {
-                                        setShowDropdown(prev => !prev)
-                                    }
-                                }}
-                                className='p-1 hover:bg-gray-100 rounded-full transition-colors'
-                            >
-                                <img
-                                    src="https://www.svgrepo.com/show/512729/profile-round-1342.svg"
-                                    className="w-5 h-5"
-                                    alt="User Profile"
-                                />
+                            <button onClick={() => !token ? navigate('/login') : setShowDropdown(!showDropdown)} className='group p-1'>
+                                <img src="https://www.svgrepo.com/show/512729/profile-round-1342.svg" className="w-6 h-6 opacity-60 group-hover:opacity-100 transition-opacity" alt="Profile" />
                             </button>
                             {token && (
-                                <div className={`absolute right-0 pt-4 z-20 ${showDropdown ? 'block' : 'hidden'} group-hover:block`}>
-                                    <div className="flex flex-col gap-3 w-40 py-3 px-4 bg-white border border-gray-100 text-gray-600 rounded shadow-lg">
-                                        <button
-                                            onClick={() => {
-                                                setShowDropdown(false)
-                                                navigate('/order')
-                                            }}
-                                            className="text-left cursor-pointer hover:text-black transition-colors text-sm"
-                                        >
-                                            My Orders
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setShowDropdown(false)
-                                                logout()
-                                            }}
-                                            className="text-left cursor-pointer hover:text-black transition-colors text-sm"
-                                        >
-                                            Logout
-                                        </button>
-                                    </div>
+                                <div className={`absolute right-0 mt-3 w-36 bg-white border border-gray-100 shadow-lg py-1 z-20 rounded-md transition-all duration-200 origin-top-right ${showDropdown ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto'}`}>
+                                    <button onClick={() => navigate('/order')} className="w-full text-left px-4 py-2 text-xs text-gray-500 hover:bg-gray-50 hover:text-black uppercase tracking-wider">Orders</button>
+                                    <button onClick={logout} className="w-full text-left px-4 py-2 text-xs text-gray-500 hover:bg-gray-50 hover:text-red-500 uppercase tracking-wider">Logout</button>
                                 </div>
                             )}
                         </div>
                         
                         {/* Cart */}
-                        <Link to='/cart' className='relative p-1 hover:bg-gray-100 rounded-full transition-colors'>
-                            <img 
-                                src="https://www.svgrepo.com/show/524270/bag-5.svg" 
-                                className='w-5 h-5' 
-                                alt="Shopping Cart" 
-                            />
-                            <span className='absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center bg-black text-white rounded-full text-[10px] font-bold'>
-                                {getcartcount()}
-                            </span>
+                        <Link to='/cart' className='group relative p-1'>
+                            <img src="https://www.svgrepo.com/show/524270/bag-5.svg" className='w-6 h-6 opacity-60 group-hover:opacity-100 transition-opacity' alt="Cart" />
+                            <span className='absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center bg-black text-white rounded-full text-[10px] font-bold leading-none'>{getcartcount()}</span>
                         </Link>
-                        
-                        {/* Mobile Menu Button */}
-                        <button 
-                            onClick={() => setVisible(true)} 
-                            className='p-1 hover:bg-gray-100 rounded-full transition-colors sm:hidden'
-                        >
-                            <img 
-                                src="https://www.svgrepo.com/show/532195/menu.svg" 
-                                className='w-5 h-5' 
-                                alt="Menu" 
-                            />
-                        </button>
-                    </div>
-                    
-                    {/* Mobile Menu */}
-                    <div className={`fixed top-0 right-0 bottom-0 w-full bg-white z-50 transition-all duration-300 transform ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
-                        <div className='flex flex-col h-full'>
-                            <div 
-                                onClick={() => setVisible(false)} 
-                                className='flex items-center gap-4 p-5 cursor-pointer border-b'
-                            >
-                                <img 
-                                    className='w-5' 
-                                    src="https://www.svgrepo.com/show/509072/cross.svg" 
-                                    alt="Close Menu" 
-                                />
-                                <p className='font-medium'>Close</p>
-                            </div>
-                            
-                            <div className='flex-1 overflow-y-auto'>
-                                {['Home', 'Collection', 'About', 'Contact'].map((item) => (
-                                    <NavLink 
-                                        key={item}
-                                        className={({ isActive }) => 
-                                            `block py-4 px-6 border-b text-gray-700 hover:bg-gray-50 transition-colors
-                                            ${isActive ? 'font-medium text-black' : ''}`
-                                        }
-                                        onClick={() => setVisible(false)} 
-                                        to={`/${item === 'Home' ? '' : item}`}
-                                    >
-                                        {item}
-                                    </NavLink>
-                                ))}
-                            </div>
-                        </div>
                     </div>
                 </div>
-                
-                {/* Search Bar - Appears when search icon is clicked */}
-                {showSearch && (
-                    <div className='py-3 border-t border-gray-200'>
-                        <Searchbar onClose={() => setShowSearch(false)} />
-                    </div>
-                )}
             </div>
+
+            {/* --- Mobile Navigation Row (Replaces Hamburger Menu) --- */}
+            {/* These links are always visible on mobile, no clicking required */}
+            <div className={`md:hidden border-t border-gray-100 bg-white transition-all duration-300 ${scrolled ? 'py-2' : 'py-3'}`}>
+                <nav className='flex items-center justify-center gap-6 px-4'>
+                    {['Home', 'Collection', 'About', 'Contact'].map((item) => (
+                        <NavLink 
+                            key={item}
+                            to={`/${item === 'Home' ? '' : item}`} 
+                            className={({ isActive }) => 
+                                `text-[10px] font-bold uppercase tracking-[0.2em] transition-colors duration-300
+                                ${isActive ? 'text-black border-b border-black pb-0.5' : 'text-gray-400 hover:text-black'}`
+                            }
+                        >
+                            {item}
+                        </NavLink>
+                    ))}
+                </nav>
+            </div>
+
+            {/* --- Search Expandable --- */}
+            <div className={`overflow-hidden bg-white transition-all duration-300 ease-in-out border-b border-gray-100 ${showSearch ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="container mx-auto px-4 py-3">
+                    <Searchbar onClose={() => setShowSearch(false)} />
+                </div>
+            </div>
+
         </div>
     )
 }

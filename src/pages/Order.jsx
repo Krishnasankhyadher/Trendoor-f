@@ -3,6 +3,7 @@ import { Shopcontext } from '../context/Shopcontext'
 import Title from '../components/Title'
 import axios from 'axios'
 import { useEffect } from 'react'
+import PageTransition from '../components/Pagetransition'
 
 const Order = () => {
   const {backendurl,token, currency}=useContext(Shopcontext)
@@ -37,6 +38,8 @@ const Order = () => {
   loadorderdata();
 }, [token]);
   return (
+    <PageTransition>
+
     <div className='border-t pt-16'>
 
       <div className='text-2xl'>
@@ -75,6 +78,7 @@ const Order = () => {
       </div>
       
     </div>
+            </PageTransition>
   )
 }
 

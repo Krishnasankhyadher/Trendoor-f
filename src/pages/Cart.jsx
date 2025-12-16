@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Shopcontext } from '../context/Shopcontext'
 import Title from '../components/Title'
 import Carttotal from '../components/Carttotal'
+import PageTransition from '../components/Pagetransition'
 
 const Cart = () => {
   const { products, cartitems, currency , updatequantity, navigate,getcartamount} = useContext(Shopcontext)
@@ -29,6 +30,8 @@ const Cart = () => {
   }, [cartitems,products])
 
   return (
+    <PageTransition>
+
     <div className='border-t pt-14 border-gray-200 px-4 sm:px-10'>
       <div className='text-2xl mb-6'>
         <Title text1={'YOUR'} text2={'CART'} />
@@ -91,6 +94,7 @@ const Cart = () => {
 
       </div>
     </div>
+                  </PageTransition>
   )
 }
 

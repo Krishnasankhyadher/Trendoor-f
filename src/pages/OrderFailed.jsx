@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useContext } from 'react'
 import { Shopcontext } from '../context/Shopcontext'
 import { toast } from 'react-toastify'
+import PageTransition from '../components/Pagetransition'
 
 const OrderFailed = () => {
   const location = useLocation()
@@ -11,6 +12,8 @@ const OrderFailed = () => {
   const error = location.state?.error || 'Payment failed'
 
   return (
+    <PageTransition>
+
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
         <div className="text-center">
@@ -56,6 +59,7 @@ const OrderFailed = () => {
         </div>
       </div>
     </div>
+            </PageTransition>
   )
 }
 

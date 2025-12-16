@@ -5,11 +5,14 @@ import Bestseller from '../components/Bestseller'
 import Ourpolicy from '../components/Ourpolicy'
 import Newsletterbox from '../components/Newsletterbox'
 import { Link } from 'react-router-dom'
+import PageTransition from '../components/Pagetransition'
 
 
 
 const Home = () => {
   return (
+    <PageTransition>
+
     <div>
       <Hero/>
       <Latestcollection/>
@@ -23,6 +26,7 @@ const Home = () => {
       <Newsletterbox/>
       
     </div>
+    </PageTransition>
   )
 }
 

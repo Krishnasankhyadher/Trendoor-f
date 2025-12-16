@@ -1,7 +1,10 @@
 import React from "react";
+import PageTransition from "../components/Pagetransition";
 
 const TermsAndConditions = () => {
   return (
+    <PageTransition>
+
     <div className="p-6 max-w-5xl mx-auto text-gray-800">
       <h1 className="text-3xl font-bold mb-4">Terms and Conditions</h1>
      
@@ -65,6 +68,7 @@ const TermsAndConditions = () => {
         Last updated: July 28, 2025
       </p>
     </div>
+    </PageTransition>
   );
 };
 

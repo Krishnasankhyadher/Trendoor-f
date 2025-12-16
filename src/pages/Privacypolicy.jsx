@@ -1,8 +1,11 @@
 // PrivacyPolicy.jsx
 import React from 'react';
+import PageTransition from '../components/Pagetransition';
 
 const PrivacyPolicy = () => {
   return (
+    <PageTransition>
+
     <div className="p-6 max-w-4xl mx-auto text-gray-800">
       <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
       <p className="mb-4">Effective Date: [22/07/25]</p>
@@ -38,6 +41,7 @@ const PrivacyPolicy = () => {
         For any questions, please contact us at <span className="font-medium">trendoorcontact@gmail.com</span>
       </p>
     </div>
+    </PageTransition>
   );
 };
 
