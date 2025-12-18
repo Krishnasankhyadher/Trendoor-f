@@ -21,12 +21,12 @@ const Shopcontextprovider = (props) => {
     cart: false,
     auth: false
   });
-  
+
   // Payment states (added new states)
   const [paymentstatus, setpaymentstatus] = useState(null);
   const [currentorder, setcurrentorder] = useState(null);
 
-  
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -61,14 +61,14 @@ const Shopcontextprovider = (props) => {
       try {
         const response = await axios.post(
           `${backendurl}/api/payment/initiate`,
-          { 
-            amount: amount * 100, // Convert to paise
+          {
+            amount: amount, // Convert to paise
             orderId: orderid,
             userId: getUserIdFromToken(token)
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        
+
         if (response.data.success) {
           setcurrentorder({ orderid, amount });
           return response.data.url;
@@ -90,7 +90,7 @@ const Shopcontextprovider = (props) => {
           `${backendurl}/api/payment/status/${transactionid}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        
+
         if (response.data.success) {
           setpaymentstatus(response.data.paymentStatus);
           return response.data;
@@ -119,20 +119,20 @@ const Shopcontextprovider = (props) => {
 
   const applyPromoCode = async (code) => {
     if (!code.trim()) return;
-    
+
     return withLoading(async () => {
       try {
         setPromoLoading(true);
         const response = await axios.post(
           `${backendurl}/api/promo/validate`,
-          { 
+          {
             code,
             userId: token ? getUserIdFromToken(token) : null,
             cartAmount: getcartamount()
           },
           { headers: token ? { token: token } : {} }
         );
-        
+
         if (response.data.success) {
           setPromoCode(response.data.promoCode);
           setDiscount(response.data.discount);
@@ -261,7 +261,13 @@ const Shopcontextprovider = (props) => {
       try {
         const response = await axios.get(`${backendurl}/api/product/list`);
         if (response.data.success) {
-          setproducts(response.data.products);
+          const fifoProducts = [...response.data.products].sort(
+            (a, b) => a.date - b.date
+          );
+          
+
+          setproducts(fifoProducts);
+
         } else {
           toast.error(response.data.message);
           setproducts([]);
@@ -382,7 +388,7 @@ const Shopcontextprovider = (props) => {
     refreshCart: getcartitems,
     // Helper function
     withLoading,
-     // NEW: Payment related values
+    // NEW: Payment related values
     paymentstatus,
     currentorder,
     initiatephonepay,

@@ -11,7 +11,11 @@ const Latestcollection = () => {
 
     useEffect(() => {
         // Displaying 6 items looks best in this 3-column layout
-        setlatestproducts(products.slice(0, 6))
+       const fifoProducts = [...products].sort(
+    (a, b) =>b.date - a.date
+  );
+
+  setlatestproducts(fifoProducts.slice(0, 6));
     }, [products])
 
     return (
