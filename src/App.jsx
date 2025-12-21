@@ -10,6 +10,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ScrollToTop from './components/Scrolltotop'
 import PaymentCallbackHandler from './components/PayementCallbackhandler'
+import PaymentCallback from './pages/PaymentCallback'
 
 // Lazy Loaded Pages
 const Home = React.lazy(() => import('./pages/Homem'))
@@ -83,9 +84,9 @@ const App = () => {
               <Route path='/product/:productId' element={<Product />} />
 
               {/* --- Payment & Status Routes --- */}
-              <Route path="/payment-callback/:transactionId" element={<PaymentCallbackHandler />} />
-              <Route path="/order-success" element={<OrderSuccess />} />
-              <Route path="/payment-failed" element={<OrderFailed />} />
+              <Route path="/payment-callback" element={<PaymentCallback />} />
+              <Route path="/ordersuccess" element={<OrderSuccess />} />
+              <Route path="/orderfailed" element={<OrderFailed />} />
       
               {/* --- Admin Routes --- */}
               {/* Note: Admin routes usually don't need fancy transitions, but they are included here */}

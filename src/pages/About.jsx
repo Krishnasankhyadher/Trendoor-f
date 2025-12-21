@@ -15,7 +15,8 @@ const About = () => {
             <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-20">
               
               {/* Image Section - Fashion Portrait Style */}
-              <div className="w-full lg:w-5/12 sticky top-24 self-start">
+              <div className="w-full lg:w-5/12 lg:sticky lg:top-24 self-start">
+
                 <div className="relative group overflow-hidden rounded-sm bg-gray-100 aspect-[4/5]">
                     {/* Decorative overlay */}
                   <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
