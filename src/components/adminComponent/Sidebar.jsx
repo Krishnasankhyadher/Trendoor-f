@@ -25,6 +25,15 @@ const Sidebar = () => {
             <p className='hidden md:block'>PromoCodes </p>
 
             </NavLink>
+              <NavLink to="collaborators" className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
+            <img src="https://www.svgrepo.com/show/524566/folder-check.svg" className='w-5 h-5' alt="" />
+            <p className='hidden md:block'>Collaborators </p>
+
+            </NavLink>  <NavLink to="collaborators/create" className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l'>
+            <img src="https://www.svgrepo.com/show/524566/folder-check.svg" className='w-5 h-5' alt="" />
+            <p className='hidden md:block'>Collaborator-create </p>
+
+            </NavLink>
         </div>
       
     </div>

@@ -280,21 +280,26 @@ const Shopcontextprovider = (props) => {
   };
 
   const getcartitems = async (token) => {
-    return withLoading(async () => {
-      try {
-        const response = await axios.post(
-          `${backendurl}/api/cart/get`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (response.data.success) {
-          setcartitems(response.data.cartdata);
+  return withLoading(async () => {
+    try {
+      const response = await axios.post(
+        `${backendurl}/api/cart/get`,
+        {},
+        {
+          headers: {
+            token: token   // 👈 THIS is the key fix
+          }
         }
-      } catch (error) {
-        toast.error(error.response?.data?.message || error.message);
+      );
+
+      if (response.data.success) {
+        setcartitems(response.data.cartdata);
       }
-    }, 'cart');
-  };
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    }
+  }, 'cart');
+};
 
   const loginUser = async (credentials) => {
     return withLoading(async () => {

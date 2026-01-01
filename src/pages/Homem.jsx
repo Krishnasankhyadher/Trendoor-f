@@ -6,6 +6,7 @@ import Ourpolicy from '../components/Ourpolicy'
 import Newsletterbox from '../components/Newsletterbox'
 import { Link } from 'react-router-dom'
 import PageTransition from '../components/Pagetransition'
+import Testimonials from '../components/Testimonials'
 
 
 
@@ -24,6 +25,7 @@ const Home = () => {
       </div>
       <Ourpolicy/>
       <Newsletterbox/>
+      <Testimonials/>
       
     </div>
     </PageTransition>

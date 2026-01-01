@@ -36,7 +36,12 @@ const AdminAdd = React.lazy(() => import('./pages/adminPages/Add'))
 const AdminOrder = React.lazy(() => import('./pages/adminPages/Order'))
 const AdminList = React.lazy(() => import('./pages/adminPages/List'))
 const AdminPromoCodes = React.lazy(() => import('./pages/adminPages/Promotion'))
-
+import CollaboratorLogin from './pages/ControLogin'
+import CollaboratorDashboard from './pages/Dashboardcol'
+import CollaboratorProtected from './components/Protected'
+import CollaboratorCreate from './pages/adminPages/Colabcreate'
+import CollaboratorList from './pages/adminPages/Listcolab'
+import EditProduct from './pages/adminPages/EditProduct'
 const App = () => {
   // Hook to detect route changes for animation
   const location = useLocation();
@@ -56,7 +61,7 @@ const App = () => {
       />
 
       <Navbar />
-      
+
       {/* ScrollToTop handles scroll reset on route change */}
       <ScrollToTop />
 
@@ -66,7 +71,7 @@ const App = () => {
           <AnimatePresence mode='wait'>
             {/* Location and Key are required for Framer Motion to detect page changes */}
             <Routes location={location} key={location.pathname}>
-              
+
               {/* --- Public Routes --- */}
               <Route path='/' element={<Home />} />
               <Route path='/about' element={<About />} />
@@ -82,12 +87,24 @@ const App = () => {
               <Route path='/search' element={<SearchPage />} />
               <Route path='/terms' element={<TermsAndConditions />} />
               <Route path='/product/:productId' element={<Product />} />
+              <Route
+                path="/collaborator-login"
+                element={<CollaboratorLogin />}
+              />
+              <Route
+                path="/collaborator"
+                element={
+                  <CollaboratorProtected>
+                    <CollaboratorDashboard />
+                  </CollaboratorProtected>
+                }
+              />
 
               {/* --- Payment & Status Routes --- */}
               <Route path="/payment-callback" element={<PaymentCallback />} />
               <Route path="/ordersuccess" element={<OrderSuccess />} />
               <Route path="/orderfailed" element={<OrderFailed />} />
-      
+
               {/* --- Admin Routes --- */}
               {/* Note: Admin routes usually don't need fancy transitions, but they are included here */}
               <Route path='/admin' element={<Admin />}>
@@ -95,6 +112,10 @@ const App = () => {
                 <Route path='orders' element={<AdminOrder />} />
                 <Route path='list' element={<AdminList />} />
                 <Route path='promo' element={<AdminPromoCodes />} />
+                <Route path="collaborators" element={<CollaboratorList />} />
+                <Route path="collaborators/create" element={<CollaboratorCreate />} />
+                <Route path="/admin/edit/:id" element={<EditProduct />} />
+
                 <Route index element={<AdminList />} />
               </Route>
 
@@ -102,7 +123,7 @@ const App = () => {
           </AnimatePresence>
         </Suspense>
       </main>
-      
+
       <Footer />
     </div>
   )
