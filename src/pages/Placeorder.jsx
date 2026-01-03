@@ -59,10 +59,10 @@ const Placeorder = () => {
       )
 
       if (response.data.success) {
-        window.location.href = response.data.url
+        window.location.href = response.data?.checkoutPageUrl
         // navigate("/ordersuccess")
       } else {
-        navigate("/orderfailed")
+        window.location.href = response.data?.checkoutPageUrl
         throw new Error('Payment initiation failed')
       }
     } catch (error) {
