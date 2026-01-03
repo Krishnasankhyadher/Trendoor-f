@@ -59,7 +59,7 @@ const Placeorder = () => {
       )
 
       if (response.data.success) {
-        // window.location.href = response.data.checkoutPageUrl
+        window.location.href = response.data.url
         // navigate("/ordersuccess")
       } else {
         navigate("/orderfailed")
