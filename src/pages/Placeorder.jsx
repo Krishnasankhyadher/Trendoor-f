@@ -50,16 +50,16 @@ const Placeorder = () => {
     }
   }
 
-  const initiatePhonePePayment = async (merchantOrderId, amount) => {
+  const initiatePhonePePayment = async (orderId, amount) => {
     try {
       const response = await axios.post(
         `${backendurl}/api/payment/initiate`,
-        { amount, merchantOrderId },
+        { amount, orderId: orderId, mobileNumber: formdata.phone },
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
       if (response.data.success) {
-        window.location.href = response.data.url
+        window.location.href = response.data.checkoutPageUrl
       } else {
         throw new Error('Payment initiation failed')
       }
@@ -135,8 +135,8 @@ const Placeorder = () => {
       }
 
       // 3️⃣ Online → PhonePe
-      const { merchantOrderId, finalAmount } = response.data
-      await initiatePhonePePayment(merchantOrderId, finalAmount)
+      const { orderId, finalAmount } = response.data
+      await initiatePhonePePayment(orderId, finalAmount)
 
     } catch (error) {
       console.error(error)
