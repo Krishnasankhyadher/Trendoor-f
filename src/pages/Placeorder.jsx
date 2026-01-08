@@ -186,14 +186,10 @@ const Placeorder = () => {
         return
       }
 
-<<<<<<< HEAD
-      // 3️⃣ Online → PhonePe
-      const { orderId, finalAmount } = response.data
-      await initiatePhonePePayment(orderId, finalAmount)
-=======
-      const { merchantOrderId, finalAmount } = response.data
-      await initiatePhonePePayment(merchantOrderId, finalAmount)
->>>>>>> 21bf355 (Fix admin collaborator flow and auth headers across frontend)
+// 3️⃣ Online → PhonePe
+const { merchantOrderId, finalAmount } = response.data
+await initiatePhonePePayment(merchantOrderId, finalAmount)
+
 
     } catch (error) {
       console.error(error)
