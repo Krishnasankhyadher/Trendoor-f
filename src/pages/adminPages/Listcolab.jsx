@@ -11,7 +11,13 @@ export default function CollaboratorList() {
 
     useEffect(() => {
         setLoading(true);
-        api.get("/api/admin/collaborator/all")
+        const adminToken = localStorage.getItem("adminToken");
+
+        api.get("/api/admin/collaborator/all", {
+            headers: {
+                Authorization: `Bearer ${adminToken}`
+            }
+        })
             .then((res) => {
                 setList(res.data.collaborators || []);
                 setLoading(false);
@@ -50,7 +56,7 @@ export default function CollaboratorList() {
                         <h2 className="text-2xl font-bold text-gray-800">Collaborators</h2>
                         <p className="text-sm text-gray-500">Manage your partners and promo codes</p>
                     </div>
-                    <Link 
+                    <Link
                         to="/admin/collaborators/create" // Assuming you have a create page
                         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
                     >
@@ -83,7 +89,7 @@ export default function CollaboratorList() {
                                                     <span className="text-sm font-medium text-gray-900">{c.name}</span>
                                                 </div>
                                             </td>
-                                            
+
                                             {/* Email Column */}
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {c.email}
@@ -91,19 +97,19 @@ export default function CollaboratorList() {
 
                                             {/* Promo Code Column */}
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span 
+                                                <span
                                                     onClick={() => copyToClipboard(c.promoCode)}
                                                     className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 cursor-pointer hover:bg-green-200"
                                                     title="Click to copy"
                                                 >
-                                                    {c.promoCode} <Copy size={10} className="ml-1 opacity-50"/>
+                                                    {c.promoCode} <Copy size={10} className="ml-1 opacity-50" />
                                                 </span>
                                             </td>
 
                                             {/* Actions Column */}
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <Link 
-                                                    to={`/admin/collaborators/${c._id}`} 
+                                                <Link
+                                                    to={`/admin/collaborators/${c._id}`}
                                                     className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"
                                                 >
                                                     <Edit size={16} className="mr-1" /> Edit

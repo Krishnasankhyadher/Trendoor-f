@@ -1,18 +1,70 @@
 import React, { useContext, useState } from 'react'
-import Title from '../components/Title'
 import Carttotal from '../components/Carttotal'
 import { useNavigate } from 'react-router-dom'
 import { Shopcontext } from '../context/Shopcontext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import PageTransition from '../components/Pagetransition'
-import { FaUser, FaEnvelope, FaMapMarkerAlt, FaCity, FaPhone, FaCreditCard, FaMoneyBillWave, FaLock, FaTruck } from 'react-icons/fa'
+import { FaArrowRight, FaLock, FaShieldAlt, FaCheck, FaCreditCard, FaMoneyBillWave } from 'react-icons/fa'
+
+// 1. Reusable Interactive Input Component
+const InteractiveInput = ({ label, name, value, onChange, type = "text", required = false, autoComplete, icon }) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const hasValue = value && value.length > 0;
+  
+  return (
+    <div className="relative w-full group">
+      {/* Icon Wrapper */}
+      {icon && (
+        <div className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300 ${isFocused || hasValue ? 'text-black' : 'text-gray-300'}`}>
+          {icon}
+        </div>
+      )}
+
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        autoComplete={autoComplete}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        className={`peer w-full bg-white border-2 outline-none px-4 py-3.5 pt-5 text-sm font-medium text-black transition-all duration-300 placeholder-transparent
+          ${icon ? 'pl-11' : 'pl-4'}
+          ${isFocused ? 'border-black ring-1 ring-black/5' : 'border-gray-200 hover:border-gray-300'}
+          ${hasValue ? 'border-gray-800' : ''}
+        `}
+        placeholder={label} // Needed for :placeholder-shown trick
+      />
+
+      {/* Floating Label */}
+      <label
+        className={`absolute left-0 transition-all duration-200 pointer-events-none uppercase font-bold tracking-wider
+          ${icon ? 'left-11' : 'left-4'}
+          ${isFocused || hasValue 
+            ? '-top-2.5 text-[9px] bg-white px-1 text-black' 
+            : 'top-3.5 text-xs text-gray-400'
+          }
+        `}
+      >
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+
+      {/* Validation Checkmark */}
+      {hasValue && (
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 text-green-600 animate-in fade-in zoom-in duration-200">
+           <FaCheck className="text-xs" />
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Placeorder = () => {
   const [method, setMethod] = useState('phonepay')
   const [isProcessing, setIsProcessing] = useState(false)
-  const [activeSection, setActiveSection] = useState('delivery')
-
+  
   const {
     backendurl,
     token,
@@ -83,7 +135,7 @@ const Placeorder = () => {
       const userid = decoded?.id
 
       if (!userid) {
-        toast.error("User not authenticated")
+        toast.error("User not authenticated [please login first]")
         setIsProcessing(false)
         return
       }
@@ -114,7 +166,6 @@ const Placeorder = () => {
         paymentmethod: method
       }
 
-      // 1️⃣ Create order
       const response = await axios.post(
         `${backendurl}/api/order/place`,
         orderdata,
@@ -127,7 +178,6 @@ const Placeorder = () => {
         return
       }
 
-      // 2️⃣ COD → done
       if (method === 'cod') {
         setcartitems({})
         toast.success("Order placed successfully!")
@@ -136,9 +186,14 @@ const Placeorder = () => {
         return
       }
 
+<<<<<<< HEAD
       // 3️⃣ Online → PhonePe
       const { orderId, finalAmount } = response.data
       await initiatePhonePePayment(orderId, finalAmount)
+=======
+      const { merchantOrderId, finalAmount } = response.data
+      await initiatePhonePePayment(merchantOrderId, finalAmount)
+>>>>>>> 21bf355 (Fix admin collaborator flow and auth headers across frontend)
 
     } catch (error) {
       console.error(error)
@@ -149,336 +204,233 @@ const Placeorder = () => {
 
   const isFormValid = () => {
     return (
-      formdata.firstname &&
-      formdata.lastname &&
-      formdata.email &&
-      formdata.street &&
-      formdata.city &&
-      formdata.state &&
-      formdata.zipcode &&
-      formdata.country &&
-      formdata.phone
+      formdata.firstname && formdata.lastname && formdata.email &&
+      formdata.street && formdata.city && formdata.state &&
+      formdata.zipcode && formdata.country && formdata.phone
     )
   }
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
-        {/* Progress Steps */}
-        <div className="max-w-7xl mx-auto mb-10">
-          <div className="flex justify-center items-center">
-            <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${activeSection === 'cart' ? 'bg-black text-white' : 'bg-gray-200 text-gray-600'}`}>
-                <span className="font-semibold">1</span>
-              </div>
-              <div className="ml-2 font-medium">Cart</div>
-            </div>
-
-            <div className="w-16 h-1 mx-4 bg-gray-300"></div>
-
-            <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${activeSection === 'delivery' ? 'bg-black text-white' : 'bg-gray-200 text-gray-600'}`}>
-                <span className="font-semibold">2</span>
-              </div>
-              <div className="ml-2 font-medium">Delivery</div>
-            </div>
-
-            <div className="w-16 h-1 mx-4 bg-gray-300"></div>
-
-            <div className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full ${activeSection === 'payment' ? 'bg-black text-white' : 'bg-gray-200 text-gray-600'}`}>
-                <span className="font-semibold">3</span>
-              </div>
-              <div className="ml-2 font-medium">Payment</div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-white text-black pt-10 pb-20 px-4 md:px-8">
+        
+        {/* HEADER */}
+        <div className="max-w-7xl mx-auto mb-12 text-center">
+            <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">
+                Secure Checkout
+            </h1>
+            <div className="w-24 h-1 bg-black mx-auto"></div>
+            <p className="mt-4 text-xs font-bold uppercase tracking-widest text-gray-400">
+                Finish your order in 3 steps
+            </p>
         </div>
 
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">Checkout</h1>
-          <p className="text-gray-600 text-center mb-10">Complete your purchase securely</p>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Form */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Delivery Information Card */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-                <div className="flex items-center mb-6">
-                  <div className="bg-black p-2 rounded-lg mr-3">
-                    <FaTruck className="text-white text-lg" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800">Delivery Information</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="relative">
-                    <div className="absolute left-3 top-3 text-gray-400">
-                      <FaUser />
+        <form onSubmit={onsubmithandler} className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
+            
+            {/* LEFT COLUMN: FORMS */}
+            <div className="flex-1 space-y-12">
+              
+              {/* 1. SHIPPING DETAILS */}
+              <div>
+                 <div className="flex items-center gap-4 mb-6 pb-2 border-b border-gray-100">
+                    <span className="bg-black text-white w-8 h-8 flex items-center justify-center text-sm font-bold">01</span>
+                    <h2 className="text-xl font-black uppercase tracking-wide">Shipping Details</h2>
+                 </div>
+                 
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <InteractiveInput 
+                        label="First Name" 
+                        name="firstname" 
+                        value={formdata.firstname} 
+                        onChange={onchangehandler} 
+                        required 
+                        autoComplete="given-name" 
+                    />
+                    <InteractiveInput 
+                        label="Last Name" 
+                        name="lastname" 
+                        value={formdata.lastname} 
+                        onChange={onchangehandler} 
+                        required 
+                        autoComplete="family-name" 
+                    />
+                    
+                    <div className="md:col-span-2">
+                        <InteractiveInput 
+                            label="Email Address" 
+                            name="email" 
+                            type="email"
+                            value={formdata.email} 
+                            onChange={onchangehandler} 
+                            required 
+                            autoComplete="email" 
+                        />
                     </div>
-                    <input
-                      required
-                      name="firstname"
-                      value={formdata.firstname}
-                      onChange={onchangehandler}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                      placeholder="First Name"
-                      onFocus={() => setActiveSection('delivery')}
-                    />
-                  </div>
 
-                  <div className="relative">
-                    <div className="absolute left-3 top-3 text-gray-400">
-                      <FaUser />
+                    <div className="md:col-span-2">
+                        <InteractiveInput 
+                            label="Street Address" 
+                            name="street" 
+                            value={formdata.street} 
+                            onChange={onchangehandler} 
+                            required 
+                            autoComplete="street-address" 
+                        />
                     </div>
-                    <input
-                      required
-                      name="lastname"
-                      value={formdata.lastname}
-                      onChange={onchangehandler}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                      placeholder="Last Name"
-                    />
-                  </div>
 
-                  <div className="relative md:col-span-2">
-                    <div className="absolute left-3 top-3 text-gray-400">
-                      <FaEnvelope />
+                    <InteractiveInput 
+                        label="City" 
+                        name="city" 
+                        value={formdata.city} 
+                        onChange={onchangehandler} 
+                        required 
+                        autoComplete="address-level2" 
+                    />
+                    
+                    <InteractiveInput 
+                        label="State / Province" 
+                        name="state" 
+                        value={formdata.state} 
+                        onChange={onchangehandler} 
+                        required 
+                        autoComplete="address-level1" 
+                    />
+
+                    <InteractiveInput 
+                        label="Zip Code" 
+                        name="zipcode" 
+                        value={formdata.zipcode} 
+                        onChange={onchangehandler} 
+                        required 
+                        autoComplete="postal-code" 
+                    />
+                    
+                    <InteractiveInput 
+                        label="Country" 
+                        name="country" 
+                        value={formdata.country} 
+                        onChange={onchangehandler} 
+                        required 
+                        autoComplete="country" 
+                    />
+
+                    <div className="md:col-span-2">
+                        <InteractiveInput 
+                            label="Phone Number" 
+                            name="phone" 
+                            type="tel"
+                            value={formdata.phone} 
+                            onChange={onchangehandler} 
+                            required 
+                            autoComplete="tel" 
+                        />
                     </div>
-                    <input
-                      required
-                      name="email"
-                      value={formdata.email}
-                      onChange={onchangehandler}
-                      type="email"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                      placeholder="Email Address"
-                    />
-                  </div>
-
-                  <div className="relative md:col-span-2">
-                    <div className="absolute left-3 top-3 text-gray-400">
-                      <FaMapMarkerAlt />
-                    </div>
-                    <input
-                      required
-                      name="street"
-                      value={formdata.street}
-                      onChange={onchangehandler}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                      placeholder="Street Address"
-                    />
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute left-3 top-3 text-gray-400">
-                      <FaCity />
-                    </div>
-                    <input
-                      required
-                      name="city"
-                      value={formdata.city}
-                      onChange={onchangehandler}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                      placeholder="City"
-                    />
-                  </div>
-
-                  <div className="relative">
-                    <input
-                      required
-                      name="state"
-                      value={formdata.state}
-                      onChange={onchangehandler}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                      placeholder="State"
-                    />
-                  </div>
-
-                  <div className="relative">
-                    <input
-                      required
-                      name="zipcode"
-                      value={formdata.zipcode}
-                      onChange={onchangehandler}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                      placeholder="ZIP Code"
-                    />
-                  </div>
-
-                  <div className="relative">
-                    <input
-                      required
-                      name="country"
-                      value={formdata.country}
-                      onChange={onchangehandler}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                      placeholder="Country"
-                    />
-                  </div>
-
-                  <div className="relative md:col-span-2">
-                    <div className="absolute left-3 top-3 text-gray-400">
-                      <FaPhone />
-                    </div>
-                    <input
-                      required
-                      name="phone"
-                      value={formdata.phone}
-                      onChange={onchangehandler}
-                      type="tel"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                      placeholder="Phone Number"
-                    />
-                  </div>
-                </div>
+                 </div>
               </div>
 
-              {/* Payment Method Card */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-                <div className="flex items-center mb-6">
-                  <div className="bg-black p-2 rounded-lg mr-3">
-                    <FaCreditCard className="text-white text-lg" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800">Payment Method</h2>
-                </div>
+              {/* 2. PAYMENT METHOD */}
+              <div>
+                 <div className="flex items-center gap-4 mb-6 pb-2 border-b border-gray-100">
+                    <span className="bg-black text-white w-8 h-8 flex items-center justify-center text-sm font-bold">02</span>
+                    <h2 className="text-xl font-black uppercase tracking-wide">Payment Method</h2>
+                 </div>
 
-                <div className="space-y-4">
-                  <div
-                    onClick={() => { setMethod('phonepay'); setActiveSection('payment'); }}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${method === 'phonepay' ? 'border-black bg-gradient-to-r from-gray-50 to-white shadow-md' : 'border-gray-200 hover:border-gray-300'}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${method === 'phonepay' ? 'border-black bg-black' : 'border-gray-300'}`}>
-                          {method === 'phonepay' && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* PhonePe / Online */}
+                    <div 
+                        onClick={() => setMethod('phonepay')}
+                        className={`group cursor-pointer border-2 p-6 transition-all duration-300 relative overflow-hidden ${method === 'phonepay' ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-gray-400'}`}
+                    >
+                        <div className="flex items-center gap-4 relative z-10">
+                            <FaCreditCard className={`text-xl ${method === 'phonepay' ? 'text-white' : 'text-black'}`} />
+                            <div>
+                                <h3 className="font-bold uppercase text-sm tracking-wide">Pay Online</h3>
+                                <p className={`text-[10px] font-medium uppercase mt-0.5 ${method === 'phonepay' ? 'text-gray-400' : 'text-gray-500'}`}>UPI / Card /Net Banking</p>
+                            </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-800">PhonePe</h3>
-                          <p className="text-sm text-gray-600">Pay securely with UPI, Cards & more</p>
-                        </div>
-                      </div>
-                      <div className="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-sm font-medium">
-                        Recommended
-                      </div>
+                        {method === 'phonepay' && (
+                             <div className="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wider text-green-400">
+                                 Selected
+                             </div>
+                        )}
                     </div>
-                  </div>
 
-                  <div
-                    onClick={() => { setMethod('cod'); setActiveSection('payment'); }}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${method === 'cod' ? 'border-black bg-gradient-to-r from-gray-50 to-white shadow-md' : 'border-gray-200 hover:border-gray-300'}`}
-                  >
-                    <div className="flex items-center">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-3 ${method === 'cod' ? 'border-black bg-black' : 'border-gray-300'}`}>
-                        {method === 'cod' && <div className="w-2 h-2 rounded-full bg-white"></div>}
-                      </div>
-                      <div className="flex items-center justify-between w-full">
-                        <div>
-                          <h3 className="font-semibold text-gray-800">Cash on Delivery</h3>
-                          <p className="text-sm text-gray-600">Pay when you receive your order</p>
+                    {/* COD */}
+                    <div 
+                        onClick={() => setMethod('cod')}
+                        className={`group cursor-pointer border-2 p-6 transition-all duration-300 relative overflow-hidden ${method === 'cod' ? 'border-black bg-black text-white' : 'border-gray-200 hover:border-gray-400'}`}
+                    >
+                        <div className="flex items-center gap-4 relative z-10">
+                            <FaMoneyBillWave className={`text-xl ${method === 'cod' ? 'text-white' : 'text-black'}`} />
+                            <div>
+                                <h3 className="font-bold uppercase text-sm tracking-wide">Cash on Delivery</h3>
+                                <p className={`text-[10px] font-medium uppercase mt-0.5 ${method === 'cod' ? 'text-gray-400' : 'text-gray-500'}`}>Pay at doorstep</p>
+                            </div>
                         </div>
-                        <FaMoneyBillWave className="text-gray-400 text-xl" />
-                      </div>
+                        {method === 'cod' && (
+                             <div className="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wider text-green-400">
+                                 Selected
+                             </div>
+                        )}
                     </div>
-                  </div>
-                </div>
+                 </div>
               </div>
+
             </div>
 
-            {/* Right Column - Order Summary */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8">
-                <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 mb-6">
-                  <div className="flex items-center mb-6">
-                    <div className="bg-black p-2 rounded-lg mr-3">
-                      <FaLock className="text-white text-lg" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-800">Order Summary</h2>
-                  </div>
+            {/* RIGHT COLUMN: RECEIPT */}
+            <div className="w-full lg:w-[400px]">
+                <div className="bg-gray-50 border-2 border-black p-8 lg:sticky lg:top-24 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                    <h2 className="text-xl font-black uppercase tracking-tighter mb-6 flex items-center justify-between">
+                        <span>Total Due</span>
+                        <span className="text-sm font-medium bg-black text-white px-2 py-1">INR</span>
+                    </h2>
 
-                  <div className="mb-6">
-                    <Carttotal />
-                  </div>
+                    {/* Summary Component */}
+                    <div className="mb-6 opacity-80 hover:opacity-100 transition-opacity">
+                        <Carttotal />
+                    </div>
 
-                  <div className="space-y-4 mb-8">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span className="font-semibold">₹{getcartamount()}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Delivery</span>
-                      <span className="font-semibold">₹{delivery_charge}</span>
-                    </div>
-                    <div className="border-t pt-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-bold text-gray-800">Total Amount</span>
-                        <span className="text-2xl font-bold text-black">₹{getcartamount() + delivery_charge}</span>
-                      </div>
-                    </div>
-                  </div>
+                    <div className="border-t-2 border-dashed border-gray-300 my-6"></div>
 
-                  <div className="space-y-4">
-                    <button
-                      type="submit"
-                      onClick={onsubmithandler}
-                      disabled={!isFormValid() || isProcessing}
-                      className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 ${!isFormValid() || isProcessing ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-900 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl'}`}
-                    >
-                      {isProcessing ? (
-                        <div className="flex items-center justify-center text-white">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                          Processing...
+                    <div className="flex justify-between items-end mb-8">
+                        <div>
+                            <span className="text-xs font-bold uppercase text-gray-500 block">Final Amount</span>
+                            <span className="text-xs font-bold uppercase text-gray-500 block">Inc. Taxes</span>
                         </div>
-                      ) : (
-                        `Pay ₹${getcartamount() + delivery_charge}`
-                      )}
+                        <span className="text-3xl font-black">₹{getcartamount() + delivery_charge}</span>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        disabled={!isFormValid() || isProcessing}
+                        className={`w-full py-5 text-sm font-bold uppercase tracking-[0.2em] flex items-center justify-between px-6 transition-all duration-300 group relative overflow-hidden
+                        ${!isFormValid() || isProcessing 
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                            : 'bg-black text-white hover:bg-gray-900'
+                        }`}
+                    >
+                        <span className="relative z-10">{isProcessing ? 'Processing...' : 'Pay Now'}</span>
+                        {!isProcessing && <FaArrowRight className="relative z-10 group-hover:translate-x-2 transition-transform" />}
                     </button>
 
-                    <div className="text-center text-sm text-gray-500">
-                      <p>By completing your purchase, you agree to our</p>
-                      <p>
-                        <a href="/terms" className="text-black font-medium hover:underline">Terms & Conditions</a>
-                        {' '}and{' '}
-                        <a href="/privacy" className="text-black font-medium hover:underline">Privacy Policy</a>
-                      </p>
+                    <div className="mt-8 grid grid-cols-2 gap-4">
+                        <div className="flex items-center gap-2 text-gray-500">
+                            <FaLock className="text-[10px]" />
+                            <span className="text-[9px] uppercase font-bold tracking-wide">256-bit SSL Secure</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-500">
+                             <FaShieldAlt className="text-[10px]" />
+                            <span className="text-[9px] uppercase font-bold tracking-wide">Fraud Protection</span>
+                        </div>
                     </div>
 
-                    <div className="flex items-center justify-center space-x-6 pt-4 border-t">
-                      <div className="text-center">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <span className="text-gray-600 font-bold">✓</span>
-                        </div>
-                        <p className="text-xs text-gray-600">Secure Payment</p>
-                      </div>
-                      <div className="text-center">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <span className="text-gray-600 font-bold">🔄</span>
-                        </div>
-                        <p className="text-xs text-gray-600">Easy Returns</p>
-                      </div>
-                      <div className="text-center">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <span className="text-gray-600 font-bold">🚚</span>
-                        </div>
-                        <p className="text-xs text-gray-600">Fast Delivery</p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
-
-                {/* Security Badge */}
-                <div className="bg-gradient-to-r from-gray-900 to-black text-white rounded-2xl p-5">
-                  <div className="flex items-center mb-3">
-                    <FaLock className="text-green-400 mr-2" />
-                    <h3 className="font-bold">100% Secure Checkout</h3>
-                  </div>
-                  <p className="text-sm text-gray-300">
-                    Your payment information is encrypted and secure. We never store your card details.
-                  </p>
-                </div>
-              </div>
             </div>
+
           </div>
-        </div>
+        </form>
       </div>
     </PageTransition>
   )

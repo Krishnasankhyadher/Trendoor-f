@@ -12,12 +12,16 @@ const Collection = () => {
   const [filterproducts, setfilterproducts] = useState([])
   const [category, setcategory] = useState([])
   const [subcategory, setsubcategory] = useState([])
+  const [selectedSizes, setSelectedSizes] = useState([]) // NEW: Size State
   const [sortType, setsortType] = useState('relevant')
   const [currentPage, setCurrentPage] = useState(1)
   const productsPerPage = 20
   const location = useLocation()
 
   const searchQuery = new URLSearchParams(location.search).get('q') || ''
+
+  // Standard sizes for the filter list
+  const availableSizes = ['S', 'M', 'L', 'XL', ]
 
   const togglecategory = (e) => {
     const value = e.target.value
@@ -37,6 +41,15 @@ const Collection = () => {
     )
   }
 
+  // NEW: Toggle Size Function
+  const toggleSize = (size) => {
+    setSelectedSizes(prev =>
+      prev.includes(size)
+        ? prev.filter(item => item !== size)
+        : [...prev, size]
+    )
+  }
+
   const sortproduct = (productsToSort) => {
     if (!productsToSort || productsToSort.length === 0) return productsToSort
 
@@ -51,7 +64,8 @@ const Collection = () => {
     }
   }
 
-  const applyFilters = (products, categories, subcategories) => {
+  // UPDATED: Apply Filters now includes sizes
+  const applyFilters = (products, categories, subcategories, sizes) => {
     let filtered = [...products]
 
     if (categories.length > 0) {
@@ -62,23 +76,33 @@ const Collection = () => {
       filtered = filtered.filter(item => subcategories.includes(item.subcategory))
     }
 
+    // NEW: Size Filter Logic
+    if (sizes.length > 0) {
+      filtered = filtered.filter(item => 
+        // Check if product has sizes and if any of them match the selection
+        item.sizes && item.sizes.some(size => sizes.includes(size))
+      )
+    }
+
     return filtered
   }
 
   useEffect(() => {
     if (products && products.length > 0) {
-      const filtered = applyFilters(products, category, subcategory)
+      // Pass selectedSizes to the filter function
+      const filtered = applyFilters(products, category, subcategory, selectedSizes)
+      
       const fifoSorted = [...filtered].sort(
         (a, b) => b.date - a.date
       )
 
-      // then apply price sorting
       const sorted = sortproduct(fifoSorted)
       setfilterproducts(sorted)
     } else {
       setfilterproducts([])
     }
-  }, [products, category, subcategory, sortType])
+    // Add selectedSizes to dependency array
+  }, [products, category, subcategory, selectedSizes, sortType])
 
   const indexOfLastProduct = currentPage * productsPerPage
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage
@@ -88,7 +112,11 @@ const Collection = () => {
   const clearAllFilters = () => {
     setcategory([])
     setsubcategory([])
+    setSelectedSizes([]) // Clear sizes
   }
+
+  // Helper to calculate total active filters
+  const activeFilterCount = category.length + subcategory.length + selectedSizes.length;
 
   if (loading.global || loading.products) {
     return <Loading />
@@ -97,15 +125,17 @@ const Collection = () => {
   return (
     <PageTransition>
       <div className='flex flex-col sm:flex-row gap-6 sm:gap-8 pt-8 sm:pt-12 border-t'>
+        
         {/* Filters Sidebar */}
         <div className='w-full sm:w-64 lg:w-72'>
+          
           {/* Mobile Filter Toggle */}
           <button
             onClick={() => setShowfilter(!showfilter)}
             className='w-full sm:hidden flex items-center justify-between bg-white border-2 border-gray-200 rounded-lg px-5 py-3 mb-4 shadow-sm hover:shadow-md transition-shadow'
           >
             <span className='text-lg font-semibold text-gray-800'>
-              Filters {(category.length + subcategory.length > 0) && `(${category.length + subcategory.length})`}
+              Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
             </span>
             <svg
               className={`w-5 h-5 transition-transform duration-300 ${showfilter ? 'rotate-180' : ''}`}
@@ -120,7 +150,7 @@ const Collection = () => {
           {/* Desktop Filter Header */}
           <div className='hidden sm:flex items-center justify-between mb-6'>
             <h2 className='text-xl font-bold text-gray-900'>Filters</h2>
-            {(category.length + subcategory.length > 0) && (
+            {activeFilterCount > 0 && (
               <button
                 onClick={clearAllFilters}
                 className='text-sm text-black hover:text-black font-medium transition-colors'
@@ -132,17 +162,15 @@ const Collection = () => {
 
           {/* Filter Sections */}
           <div className={`space-y-4 ${showfilter ? 'block' : 'hidden'} sm:block`}>
-            {/* Categories Filter */}
+            
+            {/* 1. Categories Filter */}
             <div className='bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow'>
               <div className='bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-3 border-b border-gray-200'>
                 <h3 className='font-semibold text-gray-800 text-sm uppercase tracking-wide'>Categories</h3>
               </div>
               <div className='p-5 space-y-3'>
                 {['women', 'men'].map((cat) => (
-                  <label
-                    key={cat}
-                    className='flex items-center gap-3 cursor-pointer group'
-                  >
+                  <label key={cat} className='flex items-center gap-3 cursor-pointer group'>
                     <div className='relative'>
                       <input
                         type="checkbox"
@@ -160,17 +188,14 @@ const Collection = () => {
               </div>
             </div>
 
-            {/* Subcategories Filter */}
+            {/* 2. Subcategories Filter */}
             <div className='bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow'>
               <div className='bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-3 border-b border-gray-200'>
                 <h3 className='font-semibold text-gray-800 text-sm uppercase tracking-wide'>Type</h3>
               </div>
               <div className='p-5 space-y-3'>
                 {['topwear', 'bottomwear'].map((type) => (
-                  <label
-                    key={type}
-                    className='flex items-center gap-3 cursor-pointer group'
-                  >
+                  <label key={type} className='flex items-center gap-3 cursor-pointer group'>
                     <div className='relative'>
                       <input
                         type="checkbox"
@@ -188,8 +213,32 @@ const Collection = () => {
               </div>
             </div>
 
+            {/* 3. NEW: Sizes Filter */}
+            <div className='bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow'>
+              <div className='bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-3 border-b border-gray-200'>
+                <h3 className='font-semibold text-gray-800 text-sm uppercase tracking-wide'>Sizes</h3>
+              </div>
+              <div className='p-5'>
+                <div className='flex flex-wrap gap-2'>
+                  {availableSizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => toggleSize(size)}
+                      className={`w-10 h-10 flex items-center justify-center text-sm font-bold border transition-all duration-200 rounded-md
+                      ${selectedSizes.includes(size) 
+                        ? 'bg-black text-white border-black shadow-md' 
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-black hover:text-black'}
+                      `}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* Active Filters Display */}
-            {(category.length + subcategory.length > 0) && (
+            {activeFilterCount > 0 && (
               <div className='bg-gray-50 border border-gray-400 rounded-xl p-4'>
                 <div className='flex items-center justify-between mb-2'>
                   <span className='text-sm font-semibold text-black'>Active Filters</span>
@@ -201,12 +250,16 @@ const Collection = () => {
                   </button>
                 </div>
                 <div className='flex flex-wrap gap-2'>
+                  {/* Category Tags */}
                   {[...category, ...subcategory].map((filter) => (
-                    <span
-                      key={filter}
-                      className='inline-flex items-center gap-1 bg-white border border-gray-500 text-black text-xs font-medium px-3 py-1 rounded-full'
-                    >
+                    <span key={filter} className='inline-flex items-center gap-1 bg-white border border-gray-500 text-black text-xs font-medium px-3 py-1 rounded-full'>
                       {filter === 'topwear' ? 'Upper Wear' : filter === 'bottomwear' ? 'Bottom Wear' : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </span>
+                  ))}
+                  {/* Size Tags */}
+                  {selectedSizes.map((size) => (
+                    <span key={size} className='inline-flex items-center gap-1 bg-black border border-black text-white text-xs font-medium px-3 py-1 rounded-full'>
+                      Size: {size}
                     </span>
                   ))}
                 </div>
@@ -260,7 +313,7 @@ const Collection = () => {
                     : "Try adjusting your filters to see more products"
                 }
               </p>
-              {(category.length + subcategory.length > 0) && (
+              {activeFilterCount > 0 && (
                 <button
                   onClick={clearAllFilters}
                   className='mt-6 px-6 py-2 bg-black hover:bg-black text-white font-medium rounded-lg transition-colors'

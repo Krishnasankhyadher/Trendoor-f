@@ -98,7 +98,7 @@ export default function Testimonials() {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
                 {/* Email / DM Button */}
                 <a 
-                    href="mailto:partners@yourbrand.com" // Replace with your link
+                    href="Trendoorcontact@gmail.com" // Replace with your link
                     className="inline-flex items-center justify-center px-8 py-4 bg-white text-black font-bold text-sm uppercase tracking-wider hover:bg-gray-200 transition-colors rounded-none"
                 >
                     <Mail className="w-4 h-4 mr-2" /> DM Us / Email

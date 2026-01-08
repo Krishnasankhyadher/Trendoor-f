@@ -105,9 +105,9 @@ const Contact = () => {
                         </div>
                         <h4 className="font-semibold text-gray-900 mb-2">Social Media</h4>
                         <div className="flex gap-4 mt-3">
-                            <a href="#" className="text-gray-400 hover:text-black transition-colors"><FaInstagram size={20} /></a>
+                            <a href="https://www.instagram.com/trendoor.in/" className="text-gray-400 hover:text-black transition-colors"><FaInstagram size={20} /></a>
                             <a href="#" className="text-gray-400 hover:text-black transition-colors"><FaFacebook size={20} /></a>
-                            <a href="#" className="text-gray-400 hover:text-black transition-colors"><FaTwitter size={20} /></a>
+      
                         </div>
                     </div>
                 </div>

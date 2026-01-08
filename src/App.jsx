@@ -42,6 +42,7 @@ import CollaboratorProtected from './components/Protected'
 import CollaboratorCreate from './pages/adminPages/Colabcreate'
 import CollaboratorList from './pages/adminPages/Listcolab'
 import EditProduct from './pages/adminPages/EditProduct'
+import AnnouncementBar from './components/Anouncement'
 const App = () => {
   // Hook to detect route changes for animation
   const location = useLocation();
@@ -59,6 +60,7 @@ const App = () => {
         draggable
         pauseOnHover
       />
+      <AnnouncementBar/>
 
       <Navbar />
 

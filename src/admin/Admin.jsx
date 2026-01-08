@@ -13,13 +13,13 @@ export const backendurl = import.meta.env.VITE_BACKEND_URL;
 export const currency = "₹"
 
 const Admin = () => {
-  const [token, settoken] = useState(localStorage.getItem('token') || '')
+  const [token, settoken] = useState(localStorage.getItem('adminToken') || '')
   
   useEffect(() => {
     if (token) {
-      localStorage.setItem('token', token)
+      localStorage.setItem("adminToken", token)
     } else {
-      localStorage.removeItem('token')
+      localStorage.removeItem('adminToken')
     }
   }, [token])
 

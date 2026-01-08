@@ -25,7 +25,18 @@ export default function CollaboratorCreate() {
     e.preventDefault();
     try {
       // Send the request
-      const res = await api.post("/api/admin/collaborator/add", form);
+    const adminToken = localStorage.getItem("adminToken");
+
+const res = await api.post(
+  "/api/admin/collaborator/add",
+  form,
+  {
+    headers: {
+      Authorization: `Bearer ${adminToken}`
+    }
+  }
+);
+
       
       if (res.data.success) {
         alert("Collaborator created successfully!");

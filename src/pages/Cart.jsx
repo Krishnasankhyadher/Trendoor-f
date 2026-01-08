@@ -1,14 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Shopcontext } from '../context/Shopcontext'
-import Title from '../components/Title'
-import Carttotal from '../components/Carttotal'
 import PageTransition from '../components/Pagetransition'
-import { FaTrash, FaPlus, FaMinus, FaShoppingBag, FaTruck, FaArrowRight, FaTag } from 'react-icons/fa'
+import { FaArrowRight, FaTimes } from 'react-icons/fa'
+import { toast } from 'react-toastify' // Assuming you have this installed
 
 const Cart = () => {
   const { products, cartitems, currency, updatequantity, navigate, getcartamount } = useContext(Shopcontext)
   const [cartdata, setcartdata] = useState([])
   const [cartTotal, setCartTotal] = useState(0)
+  
+  // Coupon States
+  const [promoCode, setPromoCode] = useState('')
+  const [discountAmount, setDiscountAmount] = useState(0)
+  const [isCouponApplied, setIsCouponApplied] = useState(false)
 
   useEffect(() => {
     if (products.length > 0) {
@@ -33,8 +37,14 @@ const Cart = () => {
   }, [cartitems, products])
 
   useEffect(() => {
-    setCartTotal(getcartamount())
-  }, [getcartamount])
+    const amount = getcartamount();
+    setCartTotal(amount);
+    
+    // Recalculate discount if cart total changes (e.g. item removed)
+    if (isCouponApplied) {
+        setDiscountAmount(amount * 0.10); // Re-apply 10%
+    }
+  }, [getcartamount, cartitems, isCouponApplied])
 
   const increaseQuantity = (itemId, size, currentQty) => {
     updatequantity(itemId, size, currentQty + 1)
@@ -46,277 +56,244 @@ const Cart = () => {
     }
   }
 
+  // --- COUPON LOGIC ---
+  const applyCoupon = () => {
+    if (isCouponApplied) {
+        toast.info("Coupon already applied!");
+        return;
+    }
+    
+    // Example Logic: Check for a specific code
+    if (promoCode.toUpperCase() === 'Enter A Coupon Code') {
+        const discount = cartTotal * 0.10; // 10% Discount
+        setDiscountAmount(discount);
+        setIsCouponApplied(true);
+        toast.success("Coupon Applied Successfully!");
+    } else {
+        toast.error("Invalid Promo Code");
+        setDiscountAmount(0);
+        setIsCouponApplied(false);
+    }
+  }
+
+  const removeCoupon = () => {
+      setDiscountAmount(0);
+      setIsCouponApplied(false);
+      setPromoCode('');
+      toast.info("Coupon Removed");
+  }
+
+  // Shipping & Total Calculation
+  const freeShippingThreshold = 599;
+  const progress = Math.min((cartTotal / freeShippingThreshold) * 100, 100);
+  const shippingFee = cartTotal >= freeShippingThreshold ? 0 : 50;
+  const finalTotal = cartTotal + shippingFee - discountAmount;
+
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="max-w-7xl mx-auto mb-10">
-          <div className="flex items-center justify-center mb-6">
-            <div className="bg-black p-3 rounded-xl mr-4">
-              <FaShoppingBag className="text-white text-2xl" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800">Your Shopping Cart</h1>
-              <p className="text-gray-600 mt-2">Review your items and proceed to checkout</p>
-            </div>
-          </div>
-
-          {/* Progress Steps */}
-          <div className="flex justify-center items-center mb-10">
-            <div className="flex items-center">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-black text-white">
-                <span className="font-bold">1</span>
-              </div>
-              <div className="ml-3 font-semibold text-black">Cart</div>
-            </div>
-            
-            <div className="w-20 h-1 mx-4 bg-gray-300"></div>
-            
-            <div className="flex items-center">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-600">
-                <span className="font-bold">2</span>
-              </div>
-              <div className="ml-3 font-medium text-gray-600">Delivery</div>
-            </div>
-            
-            <div className="w-20 h-1 mx-4 bg-gray-300"></div>
-            
-            <div className="flex items-center">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-600">
-                <span className="font-bold">3</span>
-              </div>
-              <div className="ml-3 font-medium text-gray-600">Payment</div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-white text-black pt-10 pb-20 px-4 md:px-8">
+        
+        {/* HEADER */}
+        <div className="max-w-7xl mx-auto mb-12 text-center">
+            <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-4">
+                Shopping Cart
+            </h1>
+            <div className="w-24 h-1 bg-black mx-auto"></div>
         </div>
 
         <div className="max-w-7xl mx-auto">
           {cartdata.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="w-32 h-32 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                <FaShoppingBag className="text-gray-400 text-6xl" />
-              </div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
-              <p className="text-gray-600 mb-8">Add some products to your cart and they'll appear here</p>
+            <div className="flex flex-col items-center justify-center py-24 border border-gray-200 bg-gray-50">
+              <p className="text-lg font-bold uppercase tracking-widest text-gray-400 mb-8">Your cart is empty</p>
               <button 
                 onClick={() => navigate('/')}
-                className="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-gray-900 transition-all transform hover:-translate-y-1"
+                className="bg-black text-white px-10 py-4 uppercase text-xs font-bold tracking-widest hover:bg-white hover:text-black border-2 border-black transition-all duration-300"
               >
                 Continue Shopping
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - Cart Items */}
-              <div className="lg:col-span-2">
-                {/* Free Delivery Banner */}
-                {cartTotal < 599 && (
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-5 mb-6 shadow-sm">
-                    <div className="flex items-center">
-                      <div className="bg-blue-100 p-3 rounded-lg mr-4">
-                        <FaTruck className="text-blue-600 text-xl" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-800">Free Delivery Alert! 🚚</h3>
-                        <p className="text-gray-600">
-                          Add ₹{599 - cartTotal} more to get <strong className="text-blue-600">FREE delivery</strong>
-                        </p>
-                        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                            style={{ width: `${Math.min((cartTotal / 599) * 100, 100)}%` }}
-                          ></div>
-                        </div>
-                      </div>
+            <div className="flex flex-col lg:flex-row gap-12">
+              
+              {/* LEFT COLUMN: Products */}
+              <div className="flex-1">
+                
+                {/* Shipping Progress */}
+                <div className="mb-10">
+                    <div className="flex justify-between text-xs font-bold uppercase tracking-widest mb-2">
+                        <span>Shipping Goal</span>
+                        <span>{progress === 100 ? "Free Shipping" : `${progress.toFixed(0)}%`}</span>
                     </div>
-                  </div>
-                )}
+                    <div className="w-full h-3 bg-gray-100 border border-gray-200">
+                        <div 
+                            className="h-full bg-black transition-all duration-500" 
+                            style={{ width: `${progress}%` }}
+                        ></div>
+                    </div>
+                    {progress < 100 && (
+                        <p className="text-[10px] text-gray-500 uppercase tracking-wide mt-2">
+                            Add <span className="text-black font-bold">{currency}{freeShippingThreshold - cartTotal}</span> to qualify for free shipping.
+                        </p>
+                    )}
+                </div>
 
-                {/* Cart Items Card */}
-                <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800">Cart Items ({cartdata.length})</h2>
-                    <span className="text-sm text-gray-500">Items ready for checkout</span>
-                  </div>
+                {/* Table Header */}
+                <div className="hidden sm:grid grid-cols-[3fr_1fr_1fr_auto] gap-4 pb-3 border-b-2 border-black text-xs font-bold uppercase tracking-widest">
+                    <span>Product</span>
+                    <span className="text-center">Qty</span>
+                    <span className="text-right">Total</span>
+                    <span></span>
+                </div>
 
-                  <div className="space-y-4">
-                    {cartdata.map((item, index) => (
-                      <div 
-                        key={index}
-                        className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-all duration-300 bg-gradient-to-r from-white to-gray-50"
-                      >
-                        {/* Product Image and Info */}
-                        <div className="flex items-center gap-4">
-                          <div className="relative">
-                            <img
-                              src={item.product.image[0]}
-                              alt={item.product.name}
-                              className="w-24 h-28 object-cover rounded-xl shadow-sm"
-                              loading="lazy"
-                            />
-                            <div className="absolute -top-2 -right-2 bg-black text-white text-xs font-bold px-2 py-1 rounded-full">
-                              {item.quantity}
+                {/* Cart Items */}
+                <div className="flex flex-col">
+                  {cartdata.map((item, index) => (
+                    <div key={index} className="py-6 border-b border-gray-200 group flex flex-col sm:grid sm:grid-cols-[3fr_1fr_1fr_auto] gap-6 sm:gap-4 items-center">
+                        
+                        {/* Product Info */}
+                        <div className="flex items-start gap-6 w-full">
+                            <div className="w-24 aspect-[3/4] bg-gray-100 relative overflow-hidden border border-transparent group-hover:border-black transition-all duration-300">
+                                <img src={item.product.image[0]} alt="" className="w-full h-full object-cover" />
                             </div>
-                          </div>
-                          
-                          <div>
-                            <h3 className="font-bold text-gray-800 text-lg">{item.product.name}</h3>
-                            <div className="flex items-center gap-4 mt-2">
-                              <span className="text-xl font-bold text-black">{currency}{item.product.price}</span>
-                              <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg font-medium">
-                                Size: {item.size}
-                              </span>
+                            <div className="flex flex-col pt-1">
+                                <h3 className="text-lg font-bold uppercase tracking-tight">{item.product.name}</h3>
+                                <p className="text-sm font-medium text-gray-500 mt-1">{currency}{item.product.price}</p>
+                                <span className="inline-block mt-3 text-xs font-bold uppercase border border-gray-300 px-2 py-1 self-start">
+                                    Size: {item.size}
+                                </span>
                             </div>
-                            <div className="flex items-center gap-2 mt-3">
-                              <FaTag className="text-gray-400" />
-                              <span className="text-sm text-gray-500">In Stock • Ready to Ship</span>
-                            </div>
-                          </div>
                         </div>
 
-                        {/* Quantity Controls and Delete */}
-                        <div className="flex items-center gap-6">
-                          {/* Quantity Controls */}
-                          <div className="flex items-center border border-gray-200 rounded-xl bg-white">
-                            <button
-                              onClick={() => decreaseQuantity(item._id, item.size, item.quantity)}
-                              className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 rounded-l-xl transition-all"
-                              disabled={item.quantity <= 1}
-                            >
-                              <FaMinus className={`${item.quantity <= 1 ? 'opacity-30' : ''}`} />
-                            </button>
-                            <span className="px-4 py-2 font-bold text-gray-800 min-w-[40px] text-center">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() => increaseQuantity(item._id, item.size, item.quantity)}
-                              className="p-2 text-gray-600 hover:text-black hover:bg-gray-100 rounded-r-xl transition-all"
-                            >
-                              <FaPlus />
-                            </button>
-                          </div>
-
-                          {/* Delete Button */}
-                          <button
-                            onClick={() => updatequantity(item._id, item.size, 0)}
-                            className="p-3 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                            title="Remove item"
-                          >
-                            <FaTrash className="text-lg" />
-                          </button>
+                        {/* Quantity */}
+                        <div className="flex items-center justify-center w-full sm:w-auto">
+                            <div className="flex border border-black">
+                                <button 
+                                    onClick={() => decreaseQuantity(item._id, item.size, item.quantity)}
+                                    className="w-8 h-8 flex items-center justify-center hover:bg-black hover:text-white transition-colors disabled:opacity-30"
+                                    disabled={item.quantity <= 1}
+                                >
+                                    -
+                                </button>
+                                <span className="w-10 flex items-center justify-center font-bold text-sm bg-gray-50 border-x border-black">
+                                    {item.quantity}
+                                </span>
+                                <button 
+                                    onClick={() => increaseQuantity(item._id, item.size, item.quantity)}
+                                    className="w-8 h-8 flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+                                >
+                                    +
+                                </button>
+                            </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
 
-                  {/* Continue Shopping Button */}
-                  <div className="mt-8 pt-6 border-t border-gray-100">
-                    <button
-                      onClick={() => navigate('/')}
-                      className="flex items-center justify-center gap-2 text-gray-600 hover:text-black hover:bg-gray-100 px-6 py-3 rounded-xl font-medium transition-all"
-                    >
-                      ← Continue Shopping
-                    </button>
-                  </div>
+                        {/* Price */}
+                        <div className="text-right w-full sm:w-auto flex justify-between sm:block">
+                            <span className="sm:hidden text-xs font-bold uppercase">Total</span>
+                            <span className="font-bold text-lg">{currency}{item.product.price * item.quantity}</span>
+                        </div>
+
+                        {/* Remove */}
+                        <div className="text-right w-full sm:w-auto flex justify-end">
+                             <button 
+                                onClick={() => updatequantity(item._id, item.size, 0)}
+                                className="text-gray-400 hover:text-red-600 transition-colors"
+                             >
+                                <FaTimes />
+                             </button>
+                        </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-8">
+                     <button onClick={() => navigate('/')} className="text-xs font-bold uppercase tracking-widest border-b border-black pb-0.5 hover:text-gray-600 hover:border-gray-600 transition-all">
+                        ← Continue Shopping
+                     </button>
                 </div>
               </div>
 
-              {/* Right Column - Order Summary */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-8">
-                  {/* Order Summary Card */}
-                  <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 mb-6">
-                    <div className="flex items-center mb-6">
-                      <div className="bg-black p-2 rounded-lg mr-3">
-                        <FaShoppingBag className="text-white" />
-                      </div>
-                      <h2 className="text-2xl font-bold text-gray-800">Order Summary</h2>
+              {/* RIGHT COLUMN: Summary */}
+              <div className="w-full lg:w-[400px]">
+                <div className="bg-gray-50 border border-gray-200 p-6 lg:sticky lg:top-24">
+                    <h2 className="text-xl font-black uppercase tracking-wide mb-6">Order Summary</h2>
+                    
+                    {/* Cost Breakdown */}
+                    <div className="space-y-3 text-sm border-b border-gray-200 pb-6 mb-6">
+                        <div className="flex justify-between">
+                            <span className="text-gray-600 uppercase font-medium">Subtotal</span>
+                            <span className="font-bold">{currency}{cartTotal}</span>
+                        </div>
+                        
+                        <div className="flex justify-between">
+                            <span className="text-gray-600 uppercase font-medium">Shipping</span>
+                            <span className="font-bold">
+                                {cartTotal >= freeShippingThreshold ? 'Free' : `${currency}50`}
+                            </span>
+                        </div>
+
+                        {/* Discount Row - Only shows if applied */}
+                        {isCouponApplied && (
+                            <div className="flex justify-between text-green-600">
+                                <span className="uppercase font-bold">Discount (10%)</span>
+                                <span className="font-bold">-{currency}{discountAmount.toFixed(2)}</span>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="mb-6">
-                      <Carttotal />
+                    {/* COUPON SECTION */}
+                    <div className="mb-8">
+                        <label className="text-xs font-bold uppercase tracking-widest mb-2 block text-gray-500">
+                            Promo Code
+                        </label>
+                        <div className="flex">
+                            <input 
+                                type="text" 
+                                placeholder="TRY: TRENDOOR10"
+                                value={promoCode}
+                                onChange={(e) => setPromoCode(e.target.value)}
+                                disabled={isCouponApplied}
+                                className={`flex-1 bg-white border border-r-0 border-gray-300 px-4 py-3 text-sm font-medium outline-none focus:border-black transition-colors uppercase placeholder:text-gray-300 ${isCouponApplied ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            />
+                            {isCouponApplied ? (
+                                <button 
+                                    onClick={removeCoupon}
+                                    className="bg-red-600 text-white px-4 text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition-colors"
+                                >
+                                    <FaTimes />
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={applyCoupon}
+                                    className="bg-black text-white px-6 text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                                >
+                                    Apply
+                                </button>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="space-y-4 mb-8">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Subtotal ({cartdata.length} items)</span>
-                        <span className="font-semibold">{currency}{cartTotal}</span>
-                      </div>
-                      
-                      {cartTotal < 599 && (
-                        <div className="flex justify-between items-center text-blue-600">
-                          <span>Delivery Charges</span>
-                          <span className="font-semibold">{currency}50</span>
-                        </div>
-                      )}
-                      
-                      {cartTotal >= 599 && (
-                        <div className="flex justify-between items-center text-green-600">
-                          <span className="flex items-center gap-2">
-                            <FaTruck /> Free Delivery
-                          </span>
-                          <span className="font-semibold">{currency}0</span>
-                        </div>
-                      )}
-
-                      <div className="border-t pt-4">
-                        <div className="flex justify-between items-center">
-                          <span className="text-lg font-bold text-gray-800">Total Amount</span>
-                          <span className="text-2xl font-bold text-black">
-                            {currency}{cartTotal >= 599 ? cartTotal : cartTotal + 50}
-                          </span>
-                        </div>
-                      </div>
+                    {/* Final Total */}
+                    <div className="flex justify-between items-end mb-8">
+                        <span className="text-lg font-black uppercase">Total</span>
+                        <span className="text-2xl font-black">{currency}{finalTotal.toFixed(2)}</span>
                     </div>
 
                     {/* Checkout Button */}
-                    <button
-                      onClick={() => navigate('/Placeorder')}
-                      className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-900 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3"
+                    <button 
+                        onClick={() => navigate('/Placeorder')}
+                        className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.15em] hover:bg-white hover:text-black border-2 border-black transition-all duration-300 flex items-center justify-between px-6 group"
                     >
-                      Proceed to Checkout
-                      <FaArrowRight />
+                        <span>Checkout</span>
+                        <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                     </button>
 
-                    {/* Security Note */}
-                    <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
-                          <span className="font-bold">✓</span>
-                        </div>
-                        <p>Secure checkout • Easy returns • 24/7 support</p>
-                      </div>
+                    <div className="mt-6 flex justify-center gap-4 text-gray-400">
+                         <p className="text-[10px] uppercase tracking-wide">Secure Checkout Encrypted</p>
                     </div>
 
-                    {/* Payment Methods */}
-                    <div className="mt-6">
-                      <p className="text-sm text-gray-600 mb-3">We accept:</p>
-                      <div className="flex gap-2">
-                        {['PhonePe', 'UPI', 'Cards', 'COD'].map((method, idx) => (
-                          <div key={idx} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm">
-                            {method}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Save Note */}
-                  {cartTotal < 599 && (
-                    <div className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5">
-                      <div className="flex items-center mb-3">
-                        <div className="bg-blue-400 p-2 rounded-lg mr-3">
-                          <FaTruck className="text-white" />
-                        </div>
-                        <h3 className="font-bold">Save on Delivery!</h3>
-                      </div>
-                      <p className="text-sm text-blue-100">
-                        Add <strong>₹{599 - cartTotal} more</strong> to qualify for free delivery
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
+
             </div>
           )}
         </div>

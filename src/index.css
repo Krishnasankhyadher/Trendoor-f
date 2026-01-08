@@ -66,3 +66,24 @@ a.active hr{
     color: white;
   }
 }
+/* --- Paste this at the bottom of your CSS file --- */
+
+@keyframes marquee {
+  0% { 
+    transform: translateX(0); 
+  }
+  100% { 
+    transform: translateX(-100%); 
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content; /* Ensures the width fits the content */
+  animation: marquee 25s linear infinite;
+}
+
+/* Optional: Pauses the animation when you hover over it */
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

@@ -9,7 +9,7 @@ const Shopcontext = createContext();
 
 const Shopcontextprovider = (props) => {
   const currency = '₹';
-  const delivery_charge = 50;
+  const delivery_charge = 99;
   const backendurl = import.meta.env.VITE_BACKEND_URL;
 
   const [cartitems, setcartitems] = useState({});
@@ -172,6 +172,7 @@ const Shopcontextprovider = (props) => {
 
   const addtocart = async (itemid, size) => {
     if (!size) return toast.error('Select your size');
+    
 
     return withLoading(async () => {
       let cartdata = structuredClone(cartitems);
@@ -187,7 +188,7 @@ const Shopcontextprovider = (props) => {
       if (token) {
         try {
           await axios.post(
-            `${backendurl}/api/cart/add`,
+            `${backendurl}/api/cart/adds`,
             { itemid, size },
             { headers: { Authorization: `Bearer ${token}` } }
           );
@@ -233,7 +234,8 @@ const Shopcontextprovider = (props) => {
           await axios.post(
             `${backendurl}/api/cart/update`,
             { itemid, size, quantity },
-            { headers: { Authorization: `Bearer ${token}` } }
+            { headers: { Authorization: `Bearer ${token}` }
+ }
           );
         } catch (error) {
           toast.error(error.response?.data?.message || error.message);
@@ -287,7 +289,7 @@ const Shopcontextprovider = (props) => {
         {},
         {
           headers: {
-            token: token   // 👈 THIS is the key fix
+            Authorization: `Bearer ${token}`   // 👈 THIS is the key fix
           }
         }
       );
@@ -308,7 +310,7 @@ const Shopcontextprovider = (props) => {
         if (response.data.success) {
           const { token } = response.data;
           settoken(token);
-          localStorage.setItem('token', token);
+          localStorage.setItem("userToken", token);
           await getcartitems(token);
           return true;
         }
@@ -337,7 +339,7 @@ const Shopcontextprovider = (props) => {
   };
 
   const logoutUser = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("userToken", token);
     settoken('');
     setcartitems({});
     navigate('/login');
@@ -348,7 +350,7 @@ const Shopcontextprovider = (props) => {
   }, []);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
+    const storedToken = localStorage.getItem('userToken',token);
     if (!token && storedToken) {
       settoken(storedToken);
       getcartitems(storedToken);
