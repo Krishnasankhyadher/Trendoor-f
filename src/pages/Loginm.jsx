@@ -22,7 +22,7 @@ const Login = () => {
         const response = await axios.post(backendurl + '/api/user/register', { name, email, password })
         if (response.data.success) {
           settoken(response.data.token)
-          localStorage.setItem('token', response.data.token)
+          localStorage.setItem('userToken', response.data.token)
           toast.success('Registration successful!')
         } else {
           toast.error(response.data.message || 'Registration failed')
@@ -31,7 +31,7 @@ const Login = () => {
         const response = await axios.post(backendurl + '/api/user/login', { email, password })
         if (response.data.success) {
           settoken(response.data.token)
-          localStorage.setItem('token', response.data.token)
+          localStorage.setItem('userToken', response.data.token)
           toast.success('Login successful!')
         } else {
           toast.error(response.data.message || 'Login failed')

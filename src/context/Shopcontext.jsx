@@ -14,7 +14,11 @@ const Shopcontextprovider = (props) => {
 
   const [cartitems, setcartitems] = useState({});
   const [products, setproducts] = useState([]);
-  const [token, settoken] = useState('');
+  const [authReady, setAuthReady] = useState(false);
+
+ const [token, settoken] = useState(() => {
+  return localStorage.getItem("userToken") || "";
+});
   const [loading, setLoading] = useState({
     global: false,
     products: true,
@@ -130,7 +134,8 @@ const Shopcontextprovider = (props) => {
             userId: token ? getUserIdFromToken(token) : null,
             cartAmount: getcartamount()
           },
-          { headers: token ? { token: token } : {} }
+          { headers: { Authorization: `Bearer ${token}` } }
+
         );
 
         if (response.data.success) {
@@ -163,7 +168,7 @@ const Shopcontextprovider = (props) => {
   const getUserIdFromToken = (token) => {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.id;
+      return payload.userId;
     } catch (e) {
       console.error("Error parsing token:", e);
       return null;
@@ -281,7 +286,7 @@ const Shopcontextprovider = (props) => {
     }, 'products');
   };
 
-  const getcartitems = async (token) => {
+  const getcartitems = async () => {
   return withLoading(async () => {
     try {
       const response = await axios.post(
@@ -310,8 +315,8 @@ const Shopcontextprovider = (props) => {
         if (response.data.success) {
           const { token } = response.data;
           settoken(token);
-          localStorage.setItem("userToken", token);
-          await getcartitems(token);
+          localStorage.setItem("userToken",token);
+          await getcartitems();
           return true;
         }
         throw new Error(response.data.message || 'Login failed');
@@ -339,7 +344,7 @@ const Shopcontextprovider = (props) => {
   };
 
   const logoutUser = () => {
-    localStorage.removeItem("userToken", token);
+    localStorage.removeItem("userToken");
     settoken('');
     setcartitems({});
     navigate('/login');
@@ -349,13 +354,16 @@ const Shopcontextprovider = (props) => {
     getproductdata();
   }, []);
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('userToken',token);
-    if (!token && storedToken) {
-      settoken(storedToken);
-      getcartitems(storedToken);
-    }
-  }, [token]);
+useEffect(() => {
+  const storedToken = localStorage.getItem("userToken");
+
+  if (storedToken) {
+    settoken(storedToken);
+     getcartitems();
+  }
+
+  setAuthReady(true); // ✅ auth hydration finished
+}, []);
 
   const value = {
     products,
@@ -369,6 +377,7 @@ const Shopcontextprovider = (props) => {
     navigate,
     backendurl,
     token,
+    authReady,
     settoken,
     setcartitems,
     promoCode,

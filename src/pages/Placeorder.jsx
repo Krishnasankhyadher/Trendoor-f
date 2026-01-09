@@ -72,8 +72,10 @@ const Placeorder = () => {
     setcartitems,
     getcartamount,
     delivery_charge,
+    authReady,
     products
   } = useContext(Shopcontext)
+  
 
   const [formdata, setformdata] = useState({
     firstname: '',
@@ -86,8 +88,18 @@ const Placeorder = () => {
     country: '',
     phone: '',
   })
+  
+
 
   const navigate = useNavigate()
+   if (!authReady) {
+    return <div>Loading...</div>;
+  }
+
+  if (!token) {
+    navigate("/login");
+    return null;
+  }
 
   const onchangehandler = (e) => {
     const { name, value } = e.target
@@ -124,79 +136,69 @@ const Placeorder = () => {
     }
   }
 
-  const onsubmithandler = async (e) => {
-    e.preventDefault()
-    if (isProcessing) return
+ const onsubmithandler = async (e) => {
+  e.preventDefault()
+  if (isProcessing) return
 
-    setIsProcessing(true)
+  setIsProcessing(true)
 
-    try {
-      const decoded = decodeToken(token)
-      const userid = decoded?.id
+  try {
+    // Build order items
+    let orderItems = []
+    for (const productId in cartitems) {
+      const product = products.find(p => p._id === productId)
+      if (!product) continue
 
-      if (!userid) {
-        toast.error("User not authenticated [please login first]")
-        setIsProcessing(false)
-        return
-      }
-
-      // Build order items
-      let orderItems = []
-      for (const productId in cartitems) {
-        const product = products.find(p => p._id === productId)
-        if (!product) continue
-
-        for (const size in cartitems[productId]) {
-          const quantity = cartitems[productId][size]
-          if (quantity > 0) {
-            orderItems.push({
-              ...structuredClone(product),
-              size,
-              quantity
-            })
-          }
+      for (const size in cartitems[productId]) {
+        const quantity = cartitems[productId][size]
+        if (quantity > 0) {
+          orderItems.push({
+            ...structuredClone(product),
+            size,
+            quantity
+          })
         }
       }
-
-      const orderdata = {
-        userid,
-        address: formdata,
-        items: orderItems,
-        amount: getcartamount() + delivery_charge,
-        paymentmethod: method
-      }
-
-      const response = await axios.post(
-        `${backendurl}/api/order/place`,
-        orderdata,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-
-      if (!response.data.success) {
-        toast.error(response.data.message)
-        setIsProcessing(false)
-        return
-      }
-
-      if (method === 'cod') {
-        setcartitems({})
-        toast.success("Order placed successfully!")
-        navigate('/order')
-        setIsProcessing(false)
-        return
-      }
-
-// 3️⃣ Online → PhonePe
-const { merchantOrderId, finalAmount } = response.data
-await initiatePhonePePayment(merchantOrderId, finalAmount)
-
-
-    } catch (error) {
-      console.error(error)
-      toast.error("Error placing order")
-      setIsProcessing(false)
     }
+
+    const orderdata = {
+      address: formdata,
+      items: orderItems,
+      amount: getcartamount() + delivery_charge,
+      paymentmethod: method
+    }
+
+    const response = await axios.post(
+      `${backendurl}/api/order/place`,
+      orderdata,
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+
+    if (!response.data.success) {
+      toast.error(response.data.message)
+      setIsProcessing(false)
+      return
+    }
+
+    if (method === 'cod') {
+      setcartitems({})
+      toast.success("Order placed successfully!")
+      navigate('/order')
+      setIsProcessing(false)
+      return
+    }
+
+    // Online payment
+    const { merchantOrderId, finalAmount } = response.data
+    await initiatePhonePePayment(merchantOrderId, finalAmount)
+
+  } catch (error) {
+    console.error(error)
+    toast.error("Error placing order")
+    setIsProcessing(false)
   }
+}
+
 
   const isFormValid = () => {
     return (
