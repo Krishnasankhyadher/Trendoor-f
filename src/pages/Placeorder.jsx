@@ -191,8 +191,8 @@ const Placeorder = () => {
     }
 
     // Online payment
-    const { merchantOrderId, finalAmount } = response.data
-    await initiatePhonePePayment(merchantOrderId, finalAmount)
+    const { _id , finalAmount } = response.data
+    await initiatePhonePePayment(_id, finalAmount)
 
   } catch (error) {
     console.error(error)
