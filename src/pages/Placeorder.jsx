@@ -120,7 +120,7 @@ const Placeorder = () => {
     try {
       const response = await axios.post(
         `${backendurl}/api/payment/initiate`,
-        { amount, orderId: orderId, mobileNumber: formdata.phone },
+        { amount, orderId: orderId, mobileNumber: formdata?.phone },
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
@@ -191,8 +191,8 @@ const Placeorder = () => {
     }
 
     // Online payment
-    const { _id , finalAmount } = response.data
-    await initiatePhonePePayment(_id, finalAmount)
+    const { orderId , finalAmount } = response.data
+    await initiatePhonePePayment(orderId, finalAmount)
 
   } catch (error) {
     console.error(error)

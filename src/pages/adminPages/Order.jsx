@@ -19,6 +19,8 @@ const Order = () => {
       );
       if (res.data.success) setOrders(res.data.orders.reverse()); // Reverse to show newest first
       else toast.error(res.data.message);
+
+      console.log(res)
     } catch (err) {
       toast.error(err.message);
     }
@@ -105,7 +107,7 @@ const Order = () => {
           <div 
             key={order._id} 
             id={`order-${order._id}`} 
-            className={` rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow duration-300 ${(!order.payment && order.paymentMethod !== "cod") ? "border-red-200 bg-red-200/20" : "border-gray-200 bg-green-200/20" }`}
+            className={` rounded-xl shadow-sm border overflow-hidden hover:shadow-md transition-shadow duration-300 ${(!order.payment && order.paymentmethod !== "cod") ? "border-red-200 bg-red-200/20" : "border-gray-200 bg-green-200/20" }`}
           >
             {/* Order Header / Top Strip */}
             <div className="bg-gray-50 px-6 py-3 border-b border-gray-100 flex flex-wrap justify-between items-center gap-2">
@@ -195,7 +197,7 @@ const Order = () => {
                     <span className="text-xs text-gray-500">Total Amount</span>
                     <p className="text-xl font-bold text-gray-900">{currency}{order.amount}</p>
                     <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">
-                      Method: {order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online'}
+                      Method: {order.paymentmethod === 'cod' ? 'Cash on Delivery' : 'Online'}
                     </span>
                   </div>
                   
