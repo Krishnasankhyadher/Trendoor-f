@@ -227,7 +227,7 @@ const Cart = () => {
                         <div className="flex justify-between">
                             <span className="text-gray-600 uppercase font-medium">Shipping</span>
                             <span className="font-bold">
-                                {cartTotal >= freeShippingThreshold ? 'Free' : `${currency}50`}
+                                {cartTotal >= freeShippingThreshold ? 'Free' : `${currency}99`}
                             </span>
                         </div>
 
