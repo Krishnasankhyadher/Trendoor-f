@@ -86,7 +86,7 @@ const Cart = () => {
   // Shipping & Total Calculation
   const freeShippingThreshold = 599;
   const progress = Math.min((cartTotal / freeShippingThreshold) * 100, 100);
-  const shippingFee = cartTotal >= freeShippingThreshold ? 0 : 50;
+  const shippingFee = cartTotal >= freeShippingThreshold ? 0 : 99;
   const finalTotal = cartTotal + shippingFee - discountAmount;
 
   return (
