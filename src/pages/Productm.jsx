@@ -16,6 +16,7 @@ const Product = () => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+  
 
   useEffect(() => {
     const item = products.find((item) => item._id === productId);
@@ -42,6 +43,7 @@ const Product = () => {
       setIsShareOpen(true);
     }
   };
+  
 
   return productdata ? (
     <PageTransition>

@@ -12,7 +12,7 @@ const Collection = () => {
   const [filterproducts, setfilterproducts] = useState([])
   const [category, setcategory] = useState([])
   const [subcategory, setsubcategory] = useState([])
-  const [selectedSizes, setSelectedSizes] = useState([]) // NEW: Size State
+  const [selectedSizes, setSelectedSizes] = useState([])
   const [sortType, setsortType] = useState('relevant')
   const [currentPage, setCurrentPage] = useState(1)
   const productsPerPage = 20
@@ -21,7 +21,7 @@ const Collection = () => {
   const searchQuery = new URLSearchParams(location.search).get('q') || ''
 
   // Standard sizes for the filter list
-  const availableSizes = ['S', 'M', 'L', 'XL', ]
+  const availableSizes = ['S', 'M', 'L', 'XL',]
 
   const togglecategory = (e) => {
     const value = e.target.value
@@ -41,7 +41,6 @@ const Collection = () => {
     )
   }
 
-  // NEW: Toggle Size Function
   const toggleSize = (size) => {
     setSelectedSizes(prev =>
       prev.includes(size)
@@ -64,7 +63,6 @@ const Collection = () => {
     }
   }
 
-  // UPDATED: Apply Filters now includes sizes
   const applyFilters = (products, categories, subcategories, sizes) => {
     let filtered = [...products]
 
@@ -76,10 +74,8 @@ const Collection = () => {
       filtered = filtered.filter(item => subcategories.includes(item.subcategory))
     }
 
-    // NEW: Size Filter Logic
     if (sizes.length > 0) {
-      filtered = filtered.filter(item => 
-        // Check if product has sizes and if any of them match the selection
+      filtered = filtered.filter(item =>
         item.sizes && item.sizes.some(size => sizes.includes(size))
       )
     }
@@ -87,21 +83,32 @@ const Collection = () => {
     return filtered
   }
 
+  // ---------------------------------------------------------
+  // 1. ADD THIS USE EFFECT FOR SCROLL TOP
+  // ---------------------------------------------------------
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]); 
+  // It triggers whenever 'currentPage' changes
+  // ---------------------------------------------------------
+
+
   useEffect(() => {
     if (products && products.length > 0) {
-      // Pass selectedSizes to the filter function
       const filtered = applyFilters(products, category, subcategory, selectedSizes)
-      
+
       const fifoSorted = [...filtered].sort(
         (a, b) => b.date - a.date
       )
 
       const sorted = sortproduct(fifoSorted)
       setfilterproducts(sorted)
+      
+      // Optional: Reset to page 1 if filters change so user doesn't get stuck on empty page
+      // setCurrentPage(1); 
     } else {
       setfilterproducts([])
     }
-    // Add selectedSizes to dependency array
   }, [products, category, subcategory, selectedSizes, sortType])
 
   const indexOfLastProduct = currentPage * productsPerPage
@@ -112,10 +119,9 @@ const Collection = () => {
   const clearAllFilters = () => {
     setcategory([])
     setsubcategory([])
-    setSelectedSizes([]) // Clear sizes
+    setSelectedSizes([])
   }
 
-  // Helper to calculate total active filters
   const activeFilterCount = category.length + subcategory.length + selectedSizes.length;
 
   if (loading.global || loading.products) {
@@ -125,10 +131,10 @@ const Collection = () => {
   return (
     <PageTransition>
       <div className='flex flex-col sm:flex-row gap-6 sm:gap-8 pt-8 sm:pt-12 border-t'>
-        
+
         {/* Filters Sidebar */}
         <div className='w-full sm:w-64 lg:w-72'>
-          
+
           {/* Mobile Filter Toggle */}
           <button
             onClick={() => setShowfilter(!showfilter)}
@@ -162,7 +168,7 @@ const Collection = () => {
 
           {/* Filter Sections */}
           <div className={`space-y-4 ${showfilter ? 'block' : 'hidden'} sm:block`}>
-            
+
             {/* 1. Categories Filter */}
             <div className='bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow'>
               <div className='bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-3 border-b border-gray-200'>
@@ -225,9 +231,9 @@ const Collection = () => {
                       key={size}
                       onClick={() => toggleSize(size)}
                       className={`w-10 h-10 flex items-center justify-center text-sm font-bold border transition-all duration-200 rounded-md
-                      ${selectedSizes.includes(size) 
-                        ? 'bg-black text-white border-black shadow-md' 
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-black hover:text-black'}
+                      ${selectedSizes.includes(size)
+                          ? 'bg-black text-white border-black shadow-md'
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-black hover:text-black'}
                       `}
                     >
                       {size}
