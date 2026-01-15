@@ -24,6 +24,7 @@ const Carttotal = () => {
 
   const handleApplyPromo = () => {
     if (!enteredCode.trim()) {
+
       return;
     }
     applyPromoCode(enteredCode);

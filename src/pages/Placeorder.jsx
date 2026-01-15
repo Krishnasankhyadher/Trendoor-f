@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState,useEffect } from 'react'
 import Carttotal from '../components/Carttotal'
 import { useNavigate } from 'react-router-dom'
 import { Shopcontext } from '../context/Shopcontext'
@@ -98,11 +98,22 @@ const Placeorder = () => {
     return <div>Loading...</div>;
   }
 
-  if (!token) {
-    navigate("/login");
-    return null;
-  }
+ useEffect(() => {
+    // Check if auth is finished checking and there is NO token
+    if (authReady && !token) {
+      
+      // 1. Show a message so they know what's happening
+      toast.info("You are not logged in. Redirecting to login...");
 
+      // 2. Set a timer (e.g., 3000ms = 3 seconds)
+      const timer = setTimeout(() => {
+        navigate("/login");
+      }, 5000);
+
+      // 3. Cleanup the timer if the user leaves the page manually
+      return () => clearTimeout(timer);
+    }
+  }, [authReady, token, navigate]);
   const onchangehandler = (e) => {
     const { name, value } = e.target
     setformdata(prev => ({ ...prev, [name]: value }))
