@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useMemo} from "react";
 import { createContext } from "react";
 import { toast } from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -15,6 +15,8 @@ const Shopcontextprovider = (props) => {
   const [cartitems, setcartitems] = useState({});
   const [products, setproducts] = useState([]);
   const [authReady, setAuthReady] = useState(false);
+  const [promoMinAmount, setPromoMinAmount] = useState(0);
+
 
  const [token, settoken] = useState(() => {
   return localStorage.getItem("userToken") || "";
@@ -42,6 +44,21 @@ const Shopcontextprovider = (props) => {
 
   // Search functionality
   const [searchQuery, setSearchQuery] = useState('');
+  const cartTotal = useMemo(() => {
+  let total = 0;
+
+  for (const itemId in cartitems) {
+    const product = products.find(p => p._id === itemId);
+    if (!product) continue;
+
+    for (const size in cartitems[itemId]) {
+      total += product.price * cartitems[itemId][size];
+    }
+  }
+
+  return total;
+}, [cartitems, products]);
+
 
   // Initialize search query from URL
   useEffect(() => {
@@ -142,6 +159,8 @@ const Shopcontextprovider = (props) => {
           setPromoCode(response.data.promoCode);
           setDiscount(response.data.discount);
           setPromoApplied(true);
+          setPromoMinAmount(response.data.minOrderAmount);
+
           toast.success("Promo code applied successfully!");
           return true;
         } else {
@@ -163,6 +182,7 @@ const Shopcontextprovider = (props) => {
     setPromoCode('');
     setDiscount(0);
     setPromoApplied(false);
+    setPromoMinAmount(0);
   };
 
   const getUserIdFromToken = (token) => {
@@ -353,6 +373,15 @@ const Shopcontextprovider = (props) => {
   useEffect(() => {
     getproductdata();
   }, []);
+ useEffect(() => {
+  if (!promoApplied) return;
+
+  if (cartTotal === 0 || cartTotal < promoMinAmount) {
+    removePromoCode();
+  }
+}, [cartTotal, promoApplied, promoMinAmount]);
+
+
 
 useEffect(() => {
   const storedToken = localStorage.getItem("userToken");
