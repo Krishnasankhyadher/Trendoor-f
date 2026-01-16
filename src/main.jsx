@@ -13,6 +13,8 @@ createRoot(document.getElementById('root')).render(
   <Shopcontextprovider>
 
     <App />
+    <Analytics />
+    <SpeedInsights />
   </Shopcontextprovider>
   </BrowserRouter>,
 )
