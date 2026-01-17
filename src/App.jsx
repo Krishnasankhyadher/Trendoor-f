@@ -3,6 +3,9 @@ import { Route, Routes, useLocation } from 'react-router-dom' // Added useLocati
 import { ToastContainer } from 'react-toastify'
 import { AnimatePresence } from 'framer-motion' // Added AnimatePresence
 import 'react-toastify/dist/ReactToastify.css'
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
+
 
 // Components
 import Loading from './components/Loading'
@@ -49,6 +52,11 @@ const App = () => {
 
   return (
     <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] min-h-screen flex flex-col'>
+    
+      {/* 🔹 Vercel Analytics (ADD HERE) */}
+      <Analytics />
+      <SpeedInsights />
+
       <ToastContainer
         position="top-center"
         autoClose={3000}
