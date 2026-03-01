@@ -2,6 +2,7 @@ import React, { Suspense } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom' // Added useLocation
 import { ToastContainer } from 'react-toastify'
 import { AnimatePresence } from 'framer-motion' // Added AnimatePresence
+import { Analytics } from '@vercel/analytics/react'
 import 'react-toastify/dist/ReactToastify.css'
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -135,6 +136,7 @@ const App = () => {
       </main>
 
       <Footer />
+      <Analytics />
     </div>
   )
 }
